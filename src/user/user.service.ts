@@ -1,12 +1,13 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { EncryptionService } from '@/encryption/encryption.service';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './schemas/User';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from './dtos/update-user.dto';
-import * as bcrypt from 'bcrypt';
+import { User } from './schemas/User';
 
 @Injectable()
 export class UserService {
+  @Inject() private readonly encryptionService: EncryptionService;
   @InjectModel(User.name) private readonly userModel: Model<User>;
 
   async updateUser(target: User | User['_id'], updateUserDto: UpdateUserDto) {
@@ -17,7 +18,9 @@ export class UserService {
     const id = target instanceof User ? target._id : target;
 
     if (updateUserDto.password) {
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
+      updateUserDto.password = await this.encryptionService.hashPassword(
+        updateUserDto.password,
+      );
     }
 
     const results = await this.userModel.findByIdAndUpdate(id, updateUserDto);

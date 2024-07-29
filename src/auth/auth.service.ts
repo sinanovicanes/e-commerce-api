@@ -3,18 +3,19 @@ import { SignUpDto } from './dtos/sign-up.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '@/user/schemas/User';
 import { Model } from 'mongoose';
-import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dtos/sign-in.dto';
+import { EncryptionService } from '@/encryption/encryption.service';
 
 @Injectable()
 export class AuthService {
+  @Inject() private readonly encryptionService: EncryptionService;
   @Inject() private readonly jwtService: JwtService;
   @InjectModel(User.name) private readonly userModel: Model<User>;
 
   async signUp(signUpDto: SignUpDto) {
     const { password } = signUpDto;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await this.encryptionService.hashPassword(password);
     const user = new this.userModel({ ...signUpDto, password: hashedPassword });
 
     try {
@@ -55,7 +56,10 @@ export class AuthService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await this.encryptionService.comparePassword(
+      password,
+      user.password,
+    );
 
     if (!isValidPassword) {
       throw new HttpException('Invalid password', HttpStatus.UNAUTHORIZED);
