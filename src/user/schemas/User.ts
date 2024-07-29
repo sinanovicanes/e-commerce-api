@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { setUpdatedAtPlugin } from '../../utils/setUpdatedAtPlugin';
+import { setUpdatedAtPlugin } from '@/utils/setUpdatedAtPlugin';
 
 @Schema()
 export class User extends Document {

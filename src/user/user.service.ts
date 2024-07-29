@@ -8,11 +8,12 @@ import { UpdateUserDto } from './dtos/update-user.dto';
 export class UserService {
   @InjectModel(User.name) private readonly userModel: Model<User>;
 
-  async updateUser(id: string, updateUserDto: UpdateUserDto) {
+  async updateUser(target: User | User['_id'], updateUserDto: UpdateUserDto) {
     if (Object.keys(updateUserDto).length === 0) {
       throw new HttpException('No data to update', HttpStatus.BAD_REQUEST);
     }
 
+    const id = target instanceof User ? target._id : target;
     const results = await this.userModel.findByIdAndUpdate(id, updateUserDto);
 
     if (!results) {
