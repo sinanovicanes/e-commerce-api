@@ -1,15 +1,15 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from '@/user/schemas/User';
 import { Model } from 'mongoose';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { SignInDto } from './dtos/sign-in.dto';
 
 @Injectable()
 export class AuthService {
-  private readonly jwtService: JwtService;
+  @Inject() private readonly jwtService: JwtService;
   @InjectModel(User.name) private readonly userModel: Model<User>;
 
   async signUp(signUpDto: SignUpDto) {
@@ -20,7 +20,10 @@ export class AuthService {
     try {
       await user.save();
     } catch {
-      throw new HttpException('User already exists', HttpStatus.CONFLICT);
+      throw new HttpException(
+        'This username or email is already exist.',
+        HttpStatus.CONFLICT,
+      );
     }
 
     return this.generateUserTokens(user);

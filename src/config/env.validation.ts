@@ -30,6 +30,9 @@ class EnvironmentVariables {
   JWT_SECRET: string;
 
   @IsString()
+  JWT_EXPIRATION_TIME: string = '1h';
+
+  @IsString()
   @IsNotEmpty()
   MONGO_URI: string;
 }

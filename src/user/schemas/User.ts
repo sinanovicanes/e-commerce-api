@@ -1,8 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { setUpdatedAtPlugin } from '@/utils/setUpdatedAtPlugin';
 
-@Schema()
+@Schema({ timestamps: true })
 export class User extends Document {
   @Prop({ required: true, unique: true })
   username: string;
@@ -21,17 +20,9 @@ export class User extends Document {
 
   @Prop()
   avatar: string;
-
-  @Prop({ default: Date.now })
-  createdAt: Date;
-
-  @Prop({ default: Date.now })
-  updatedAt: Date;
 }
 
-export const UserSchema = setUpdatedAtPlugin(
-  SchemaFactory.createForClass(User),
-);
+export const UserSchema = SchemaFactory.createForClass(User);
 
 export const UserModelDefinition = {
   name: User.name,
