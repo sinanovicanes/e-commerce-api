@@ -7,7 +7,11 @@ import { UserModelDefinition } from '@/user/schemas/User';
 
 @Module({
   imports: [
-    JwtModule.register({ secret: process.env.JWT_SECRET }),
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '1h' },
+    }),
     MongooseModule.forFeature([UserModelDefinition]),
   ],
   controllers: [AuthController],
