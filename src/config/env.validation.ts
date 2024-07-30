@@ -34,6 +34,13 @@ class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
+  JWT_REFRESH_SECRET: string;
+
+  @IsString()
+  JWT_REFRESH_EXPIRATION: string = '7d';
+
+  @IsString()
+  @IsNotEmpty()
   MONGO_URI: string;
 }
 

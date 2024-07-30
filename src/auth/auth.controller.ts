@@ -18,7 +18,7 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
   async signIn(@GetUser() user: User, @Res() res: Response) {
-    this.authService.setUserTokensToCookie(user, res);
+    await this.authService.setUserTokensInCookies(user, res);
 
     return res.send(user);
   }
