@@ -96,7 +96,7 @@ export class AuthService {
   }
 
   async generateRefreshToken(user: User) {
-    const refreshToken = await this.jwtService.sign(
+    const refreshToken = this.jwtService.sign(
       { sub: user._id },
       {
         secret: this.configService.get('JWT_REFRESH_SECRET'),
@@ -104,18 +104,18 @@ export class AuthService {
       },
     );
 
-    const tokenHash = await this.encryptionService.hash(refreshToken);
+    const token = await this.encryptionService.hash(refreshToken);
     const expiresAt = adjustDate({
       weeks: 1,
     });
 
     await this.refreshTokenModel.replaceOne(
       {
-        userId: user._id,
+        user: user._id,
       },
       {
-        tokenHash,
-        userId: user._id,
+        token,
+        user: user._id,
         expiresAt,
       },
       {
@@ -127,7 +127,7 @@ export class AuthService {
   }
 
   async validateRefreshToken(user: User, refreshToken: string) {
-    const token = await this.refreshTokenModel.findOne({ userId: user._id });
+    const token = await this.refreshTokenModel.findOne({ user: user._id });
 
     if (!token) {
       return false;
@@ -135,7 +135,7 @@ export class AuthService {
 
     const isValidToken = await this.encryptionService.compare(
       refreshToken,
-      token.tokenHash,
+      token.token,
     );
 
     if (!isValidToken) {
