@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { JwtModule } from '@nestjs/jwt';
 import { EncryptionModule } from './encryption/encryption.module';
+import { MerchantModule } from './merchant/merchant.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { EncryptionModule } from './encryption/encryption.module';
     UserModule,
     AuthModule,
     EncryptionModule,
+    MerchantModule,
   ],
   controllers: [AppController],
   providers: [AppService],

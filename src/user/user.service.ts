@@ -48,4 +48,19 @@ export class UserService {
 
     return { message: 'User updated successfully' };
   }
+
+  async getUserMerchantsCount(userId: string) {
+    return this.userModel.aggregate([
+      { $match: { _id: userId } },
+      {
+        $lookup: {
+          from: 'merchants',
+          localField: '_id',
+          foreignField: 'owner',
+          as: 'merchants',
+        },
+      },
+      { $project: { merchantsCount: { $size: '$merchants' } } },
+    ]);
+  }
 }
