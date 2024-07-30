@@ -5,6 +5,8 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { AuthService } from '../auth.service';
 import { CookieFields } from '../enums';
+import { Reflector } from '@nestjs/core';
+import { IS_PUBLIC_KEY } from '../decorators';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -12,6 +14,7 @@ export class JwtAuthGuard implements CanActivate {
   @Inject() private readonly authService: AuthService;
   @Inject() private readonly jwtService: JwtService;
   @Inject() private readonly configService: ConfigService;
+  private readonly reflector: Reflector = new Reflector();
 
   private extractJwtTokenFromCookie(
     req: Request,
@@ -84,6 +87,13 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   async canActivate(context: any) {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) return true;
+
     const req = context.switchToHttp().getRequest();
     // Check if the request is valid by access token or refresh token
     const isValidRequest =
