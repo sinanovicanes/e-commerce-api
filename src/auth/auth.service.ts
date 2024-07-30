@@ -15,7 +15,7 @@ export class AuthService {
 
   async signUp(signUpDto: SignUpDto) {
     const { password } = signUpDto;
-    const hashedPassword = await this.encryptionService.hashPassword(password);
+    const hashedPassword = await this.encryptionService.hash(password);
     const user = new this.userModel({ ...signUpDto, password: hashedPassword });
 
     try {
@@ -56,7 +56,7 @@ export class AuthService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    const isValidPassword = await this.encryptionService.comparePassword(
+    const isValidPassword = await this.encryptionService.compare(
       password,
       user.password,
     );
@@ -66,6 +66,25 @@ export class AuthService {
     }
 
     return this.generateUserTokens(user);
+  }
+
+  async validateUser(username: string, password: string) {
+    const user = await this.userModel.findOne({ username });
+
+    if (!user) {
+      return null;
+    }
+
+    const isValidPassword = await this.encryptionService.compare(
+      password,
+      user.password,
+    );
+
+    if (!isValidPassword) {
+      return null;
+    }
+
+    return user;
   }
 
   async generateUserTokens(user: User) {

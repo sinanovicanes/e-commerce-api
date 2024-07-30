@@ -5,10 +5,10 @@ export class SignInDto {
   @IsString()
   @Length(3, 32)
   @IsOptional()
-  username: string;
+  username?: string;
   @IsEmail()
   @IsOptional()
-  email: string;
+  email?: string;
   @IsValidPassword()
   password: string;
 }

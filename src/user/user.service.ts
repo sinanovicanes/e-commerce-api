@@ -4,11 +4,28 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from './dtos/update-user.dto';
 import { User } from './schemas/User';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class UserService {
   @Inject() private readonly encryptionService: EncryptionService;
   @InjectModel(User.name) private readonly userModel: Model<User>;
+  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache;
+
+  async getUserByIdUsingCache(userId: string): Promise<User | undefined> {
+    const cacheKey = `user:${userId}`;
+    const user = await this.cacheManager.get<User>(cacheKey);
+
+    if (user === undefined) {
+      const userDocument = await this.userModel.findById(userId);
+
+      await this.cacheManager.set(cacheKey, userDocument ?? false);
+
+      return userDocument;
+    }
+
+    return user;
+  }
 
   async updateUser(target: User | User['_id'], updateUserDto: UpdateUserDto) {
     if (Object.keys(updateUserDto).length === 0) {
@@ -18,7 +35,7 @@ export class UserService {
     const id = target instanceof User ? target._id : target;
 
     if (updateUserDto.password) {
-      updateUserDto.password = await this.encryptionService.hashPassword(
+      updateUserDto.password = await this.encryptionService.hash(
         updateUserDto.password,
       );
     }

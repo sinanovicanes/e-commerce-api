@@ -1,14 +1,14 @@
 import { UserModelDefinition } from '@/user/schemas/User';
-import { Global, Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
+import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { LocalStrategy, JwtStrategy } from './strategies';
+import { UserModule } from '@/user/user.module';
 
 @Module({
-  imports: [MongooseModule.forFeature([UserModelDefinition])],
+  imports: [MongooseModule.forFeature([UserModelDefinition]), UserModule],
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, LocalStrategy, JwtStrategy],
 })
 export class AuthModule {}
