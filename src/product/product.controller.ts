@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -43,5 +44,13 @@ export class ProductController {
     @Body() updateProductDto: UpdateProductDto,
   ) {
     return this.productService.updateProduct(productId, updateProductDto);
+  }
+
+  @UseGuards(MerchantAccessGuard)
+  @Delete('delete/:productId')
+  deleteProduct(
+    @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
+  ) {
+    return this.productService.deleteProduct(productId);
   }
 }

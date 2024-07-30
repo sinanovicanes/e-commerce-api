@@ -72,4 +72,14 @@ export class ProductService {
 
     return { message: 'Product updated successfully' };
   }
+
+  async deleteProduct(productId: Types.ObjectId) {
+    const results = await this.productModel.deleteOne({ _id: productId });
+
+    if (results.deletedCount === 0) {
+      throw new NotFoundException('Product not found');
+    }
+
+    return { message: 'Product deleted successfully' };
+  }
 }
