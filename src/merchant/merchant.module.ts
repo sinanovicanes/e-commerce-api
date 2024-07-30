@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
-import { MerchantService } from './merchant.service';
-import { MerchantController } from './merchant.controller';
+import { Global, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { MerchantController } from './merchant.controller';
+import { MerchantService } from './merchant.service';
 import { MerchantDefinition } from './schemas';
-import { UserModule } from '@/user/user.module';
 
+@Global()
 @Module({
-  imports: [MongooseModule.forFeature([MerchantDefinition]), UserModule],
+  imports: [MongooseModule.forFeature([MerchantDefinition])],
   controllers: [MerchantController],
   providers: [MerchantService],
+  exports: [MerchantService],
 })
 export class MerchantModule {}

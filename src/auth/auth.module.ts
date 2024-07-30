@@ -1,19 +1,17 @@
 import { UserModelDefinition } from '@/user/schemas';
-import { UserModule } from '@/user/user.module';
 import { Global, Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './guards';
 import { RefreshTokenDefinition } from './schemas';
 import { LocalStrategy } from './strategies';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtAuthGuard } from './guards';
 
 @Global()
 @Module({
   imports: [
     MongooseModule.forFeature([UserModelDefinition, RefreshTokenDefinition]),
-    UserModule,
   ],
   controllers: [AuthController],
   providers: [
