@@ -1,6 +1,7 @@
 import { User } from '@/user/schemas/User';
 import { GetUser } from '@/utils/decorators';
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { LocalAuthGuard } from './guards';
@@ -16,7 +17,9 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('sign-in')
-  async signIn(@GetUser() user: User) {
-    return this.authService.generateUserTokens(user);
+  async signIn(@GetUser() user: User, @Res() res: Response) {
+    this.authService.setUserTokensToCookie(user, res);
+
+    return res.send(user);
   }
 }

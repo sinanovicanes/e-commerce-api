@@ -1,11 +1,13 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { SignUpDto } from './dtos/sign-up.dto';
-import { InjectModel } from '@nestjs/mongoose';
-import { User } from '@/user/schemas/User';
-import { Model } from 'mongoose';
-import { JwtService } from '@nestjs/jwt';
-import { SignInDto } from './dtos/sign-in.dto';
 import { EncryptionService } from '@/encryption/encryption.service';
+import { User } from '@/user/schemas/User';
+import { hours } from '@/utils/date';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { InjectModel } from '@nestjs/mongoose';
+import { Response } from 'express';
+import { Model } from 'mongoose';
+import { SignInDto } from './dtos/sign-in.dto';
+import { SignUpDto } from './dtos/sign-up.dto';
 
 @Injectable()
 export class AuthService {
@@ -91,5 +93,16 @@ export class AuthService {
     const accessToken = this.jwtService.sign({ sub: user._id });
 
     return { accessToken };
+  }
+
+  async setUserTokensToCookie(user: User, res: Response) {
+    const { accessToken } = await this.generateUserTokens(user);
+
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: hours(1),
+    });
   }
 }
