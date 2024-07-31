@@ -14,6 +14,12 @@ import { UpdateProductDto } from './dtos';
 export class ProductService {
   @InjectModel(Product.name) private readonly productModel: Model<Product>;
 
+  async isProductExists(productId: Types.ObjectId) {
+    const product = await this.productModel.exists({ _id: productId });
+
+    return !!product;
+  }
+
   async findPublicProductById(
     productId: Types.ObjectId,
     populateMerchant = false,

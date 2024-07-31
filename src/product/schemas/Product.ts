@@ -33,7 +33,9 @@ export class Product extends Document {
   @Prop({ required: true, ref: Merchant.name, type: Types.ObjectId })
   merchant: Merchant;
 
-  isPublished: () => boolean;
+  isPublished(): boolean {
+    return this.status === ProductStatus.PUBLISHED;
+  }
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
@@ -42,6 +44,4 @@ export const ProductDefinition = {
   schema: ProductSchema,
 };
 
-ProductSchema.methods.isPublished = function () {
-  return this.status === ProductStatus.PUBLISHED;
-};
+ProductSchema.loadClass(Product);
