@@ -14,7 +14,7 @@ export class ProductReviewController {
   @Public()
   @Get('/:productId')
   getProduct(@Param('productId', ParseObjectIdPipe) productId: Types.ObjectId) {
-    return this.productReviewService.getProductReviews(productId);
+    return this.productReviewService.getReviews(productId);
   }
 
   @Post('create')
@@ -22,10 +22,7 @@ export class ProductReviewController {
     @GetUser() user: User,
     @Body() createProductReviewDto: CreateProductReviewDto,
   ) {
-    return this.productReviewService.createProductReview(
-      user,
-      createProductReviewDto,
-    );
+    return this.productReviewService.createReview(user, createProductReviewDto);
   }
 
   @Delete('delete/:productId')
@@ -33,6 +30,6 @@ export class ProductReviewController {
     @GetUser() user: User,
     @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
   ) {
-    return this.productReviewService.deleteProduct(user, productId);
+    return this.productReviewService.deleteReview(user, productId);
   }
 }

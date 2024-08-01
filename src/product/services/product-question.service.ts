@@ -19,7 +19,7 @@ export class ProductQuestionService {
   @InjectModel(ProductQuestion.name)
   private readonly productQuestionModel: Model<ProductQuestion>;
 
-  async getProductQuestions(productId: Types.ObjectId) {
+  async getQuestions(productId: Types.ObjectId) {
     const isProductExist = await this.productService.isProductExists(productId);
 
     if (!isProductExist) {
@@ -38,7 +38,7 @@ export class ProductQuestionService {
     return productQuestions;
   }
 
-  async findProductQuestionById(productId: Types.ObjectId) {
+  async findQuestionById(productId: Types.ObjectId) {
     const product = await this.productQuestionModel.findById(productId);
 
     if (!product) {
@@ -48,7 +48,7 @@ export class ProductQuestionService {
     return product;
   }
 
-  async createProductQuestion(
+  async createQuestion(
     user: User,
     createProductQuestionDto: CreateProductQuestionDto,
   ) {
@@ -74,13 +74,13 @@ export class ProductQuestionService {
     };
   }
 
-  async answerProductQuestion(
+  async answerQuestion(
     merchant: Merchant,
     answerProductQuestionDto: AnswerProductQuestionDto,
   ) {
     const { questionId: _questionId, answer } = answerProductQuestionDto;
     const questionId = new Types.ObjectId(_questionId);
-    const productQuestion = await this.findProductQuestionById(questionId);
+    const productQuestion = await this.findQuestionById(questionId);
 
     if (productQuestion.answer) {
       throw new UnauthorizedException('Question already answered');
@@ -108,7 +108,7 @@ export class ProductQuestionService {
     };
   }
 
-  async deleteProductQuestion(user: User, productId: Types.ObjectId) {
+  async deleteQuestion(user: User, productId: Types.ObjectId) {
     const results = await this.productQuestionModel.deleteOne({
       _id: productId,
       user: user._id,

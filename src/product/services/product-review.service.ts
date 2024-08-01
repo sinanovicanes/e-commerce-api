@@ -14,7 +14,7 @@ export class ProductReviewService {
   @InjectModel(ProductReview.name)
   private readonly productReviewModel: Model<ProductReview>;
 
-  async getProductReviews(productId: Types.ObjectId) {
+  async getReviews(productId: Types.ObjectId) {
     const isProductExist = await this.productService.isProductExists(productId);
 
     if (!isProductExist) {
@@ -44,7 +44,7 @@ export class ProductReviewService {
     return productReviews;
   }
 
-  async findProductReviewById(productId: Types.ObjectId) {
+  async findReviewById(productId: Types.ObjectId) {
     const product = await this.productReviewModel.findById(productId);
 
     if (!product) {
@@ -54,12 +54,12 @@ export class ProductReviewService {
     return product;
   }
 
-  async createProductReview(
+  async createReview(
     user: User,
     createProductReviewDto: CreateProductReviewDto,
   ) {
     if (createProductReviewDto.parentId) {
-      return this.createProductReviewReply(user, createProductReviewDto);
+      return this.createReviewReply(user, createProductReviewDto);
     }
 
     const productId = new Types.ObjectId(createProductReviewDto.productId);
@@ -85,7 +85,7 @@ export class ProductReviewService {
     };
   }
 
-  async createProductReviewReply(
+  async createReviewReply(
     user: User,
     createProductReviewDto: CreateProductReviewDto,
   ) {
@@ -97,7 +97,7 @@ export class ProductReviewService {
     }
 
     const parentId = new Types.ObjectId(createProductReviewDto.parentId);
-    const parentProductReview = await this.findProductReviewById(parentId);
+    const parentProductReview = await this.findReviewById(parentId);
 
     if (!parentProductReview) {
       throw new NotFoundException('Parent product review not found');
@@ -128,7 +128,7 @@ export class ProductReviewService {
     };
   }
 
-  async deleteProduct(user: User, productId: Types.ObjectId) {
+  async deleteReview(user: User, productId: Types.ObjectId) {
     const results = await this.productReviewModel.deleteOne({
       _id: productId,
       user: user._id,
