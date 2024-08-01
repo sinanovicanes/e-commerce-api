@@ -1,16 +1,31 @@
 import { Module } from '@nestjs/common';
-import { ProductService } from './product.service';
-import { ProductController } from './product.controller';
+import {
+  ProductService,
+  ProductReviewService,
+  ProductQuestionService,
+} from './services';
+import { ProductController, ProductReviewController } from './controllers';
 import { MongooseModule } from '@nestjs/mongoose';
-import { ProductDefinition, ProductReviewDefinition } from './schemas';
-import { ProductReviewService } from './product.review.service';
-import { ProductReviewController } from './product-review.controller';
+import {
+  ProductDefinition,
+  ProductQuestionDefinition,
+  ProductReviewDefinition,
+} from './schemas';
+import { ProductQuestionController } from './controllers/product-question.controller';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([ProductDefinition, ProductReviewDefinition]),
+    MongooseModule.forFeature([
+      ProductDefinition,
+      ProductReviewDefinition,
+      ProductQuestionDefinition,
+    ]),
   ],
-  controllers: [ProductController, ProductReviewController],
-  providers: [ProductService, ProductReviewService],
+  controllers: [
+    ProductController,
+    ProductReviewController,
+    ProductQuestionController,
+  ],
+  providers: [ProductService, ProductReviewService, ProductQuestionService],
 })
 export class ProductModule {}

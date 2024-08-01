@@ -1,25 +1,11 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import { ProductService } from './product.service';
-import { MerchantAccessGuard } from '@/merchant/guards';
-import { GetMerchant } from '@/merchant/decorators';
-import { Merchant } from '@/merchant/schemas';
-import { CreateProductDto } from './dtos/create-product.dto';
-import { CreateProductReviewDto, UpdateProductDto } from './dtos';
-import { ParseObjectIdPipe } from '@/utils/pipes';
-import { Types } from 'mongoose';
 import { Public } from '@/auth/decorators';
-import { ProductReviewService } from './product.review.service';
-import { GetUser } from '@/utils/decorators';
 import { User } from '@/user/schemas';
+import { GetUser } from '@/utils/decorators';
+import { ParseObjectIdPipe } from '@/utils/pipes';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Types } from 'mongoose';
+import { CreateProductReviewDto } from '../dtos';
+import { ProductReviewService } from '../services';
 
 @Controller('product/reviews')
 export class ProductReviewController {

@@ -2,9 +2,9 @@ import { User } from '@/user/schemas';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { CreateProductReviewDto } from './dtos';
-import { ProductReview } from './schemas';
-import { Product } from './schemas/Product';
+import { CreateProductReviewDto } from '../dtos';
+import { ProductReview } from '../schemas';
+import { Product } from '../schemas/Product';
 import { ProductService } from './product.service';
 
 @Injectable()

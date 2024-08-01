@@ -1,3 +1,8 @@
+import { Public } from '@/auth/decorators';
+import { GetMerchant } from '@/merchant/decorators';
+import { MerchantAccessGuard } from '@/merchant/guards';
+import { Merchant } from '@/merchant/schemas';
+import { ParseObjectIdPipe } from '@/utils/pipes';
 import {
   Body,
   Controller,
@@ -8,15 +13,9 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ProductService } from './product.service';
-import { MerchantAccessGuard } from '@/merchant/guards';
-import { GetMerchant } from '@/merchant/decorators';
-import { Merchant } from '@/merchant/schemas';
-import { CreateProductDto } from './dtos/create-product.dto';
-import { UpdateProductDto } from './dtos';
-import { ParseObjectIdPipe } from '@/utils/pipes';
 import { Types } from 'mongoose';
-import { Public } from '@/auth/decorators';
+import { CreateProductDto, UpdateProductDto } from '../dtos';
+import { ProductService } from '../services';
 
 @Controller('products')
 export class ProductController {
