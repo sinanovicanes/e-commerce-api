@@ -16,13 +16,13 @@ export class ProductQuestion extends Document {
   answeredAt?: Date;
 
   @Prop({ ref: Merchant.name, type: Types.ObjectId })
-  answeredBy?: Merchant;
+  answeredBy?: Merchant | Types.ObjectId;
 
   @Prop({ required: true, ref: Product.name, type: Types.ObjectId })
-  product: Product;
+  product: Product | Types.ObjectId;
 
   @Prop({ required: true, ref: User.name, type: Types.ObjectId })
-  user: User;
+  user: User | Types.ObjectId;
 }
 
 export const ProductQuestionSchema =

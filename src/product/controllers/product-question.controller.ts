@@ -2,10 +2,21 @@ import { Public } from '@/auth/decorators';
 import { User } from '@/user/schemas';
 import { GetUser } from '@/utils/decorators';
 import { ParseObjectIdPipe } from '@/utils/pipes';
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { Types } from 'mongoose';
-import { CreateProductQuestionDto } from '../dtos';
+import { CreateProductQuestionDto, AnswerProductQuestionDto } from '../dtos';
 import { ProductQuestionService } from '../services';
+import { MerchantAccessGuard } from '@/merchant/guards';
+import { GetMerchant } from '@/merchant/decorators';
+import { Merchant } from '@/merchant/schemas';
 
 @Controller('product/questions')
 export class ProductQuestionController {
@@ -27,6 +38,18 @@ export class ProductQuestionController {
     return this.productQuestionService.createProductQuestion(
       user,
       createProductQuestionDto,
+    );
+  }
+
+  @UseGuards(MerchantAccessGuard)
+  @Post('answer')
+  answerProductQuestion(
+    @GetMerchant() merchant: Merchant,
+    @Body() answerProductQuestionDto: AnswerProductQuestionDto,
+  ) {
+    return this.productQuestionService.answerProductQuestion(
+      merchant,
+      answerProductQuestionDto,
     );
   }
 

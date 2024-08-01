@@ -1,8 +1,14 @@
+import { Merchant } from '@/merchant/schemas';
 import { User } from '@/user/schemas';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { CreateProductQuestionDto, CreateProductReviewDto } from '../dtos';
+import { AnswerProductQuestionDto, CreateProductQuestionDto } from '../dtos';
 import { ProductQuestion } from '../schemas';
 import { Product } from '../schemas/Product';
 import { ProductService } from './product.service';
@@ -65,6 +71,40 @@ export class ProductQuestionService {
     return {
       message: 'Product question created successfully',
       productQuestionId: productQuestion._id,
+    };
+  }
+
+  async answerProductQuestion(
+    merchant: Merchant,
+    answerProductQuestionDto: AnswerProductQuestionDto,
+  ) {
+    const { questionId: _questionId, answer } = answerProductQuestionDto;
+    const questionId = new Types.ObjectId(_questionId);
+    const productQuestion = await this.findProductQuestionById(questionId);
+
+    if (productQuestion.answer) {
+      throw new UnauthorizedException('Question already answered');
+    }
+
+    await productQuestion.populate('product', 'merchant logo');
+
+    if (
+      (productQuestion.product as Product).merchant._id.toString() !==
+      merchant._id.toString()
+    ) {
+      throw new UnauthorizedException(
+        'You are not allowed to answer this question',
+      );
+    }
+
+    productQuestion.answeredAt = new Date();
+    productQuestion.answeredBy = merchant._id as Types.ObjectId;
+    productQuestion.answer = answer;
+
+    await productQuestion.save();
+
+    return {
+      message: 'Product question answered successfully',
     };
   }
 
