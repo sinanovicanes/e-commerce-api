@@ -53,11 +53,11 @@ export class ProductQuestionController {
     );
   }
 
-  @Delete('delete/:productId')
+  @Delete('delete/:questionId')
   deleteProduct(
     @GetUser() user: User,
-    @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
+    @Param('questionId', ParseObjectIdPipe) questionId: Types.ObjectId,
   ) {
-    return this.productQuestionService.deleteQuestion(user, productId);
+    return this.productQuestionService.deleteQuestion(user, questionId);
   }
 }

@@ -108,9 +108,9 @@ export class ProductQuestionService {
     };
   }
 
-  async deleteQuestion(user: User, productId: Types.ObjectId) {
+  async deleteQuestion(user: User, questionId: Types.ObjectId) {
     const results = await this.productQuestionModel.deleteOne({
-      _id: productId,
+      _id: questionId,
       user: user._id,
     });
 

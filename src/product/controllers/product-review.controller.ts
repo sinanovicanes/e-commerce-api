@@ -25,11 +25,11 @@ export class ProductReviewController {
     return this.productReviewService.createReview(user, createProductReviewDto);
   }
 
-  @Delete('delete/:productId')
+  @Delete('delete/:reviewId')
   deleteProduct(
     @GetUser() user: User,
-    @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
+    @Param('reviewId', ParseObjectIdPipe) reviewId: Types.ObjectId,
   ) {
-    return this.productReviewService.deleteReview(user, productId);
+    return this.productReviewService.deleteReview(user, reviewId);
   }
 }

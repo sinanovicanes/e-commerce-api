@@ -128,9 +128,9 @@ export class ProductReviewService {
     };
   }
 
-  async deleteReview(user: User, productId: Types.ObjectId) {
+  async deleteReview(user: User, reviewId: Types.ObjectId) {
     const results = await this.productReviewModel.deleteOne({
-      _id: productId,
+      _id: reviewId,
       user: user._id,
     });
 
