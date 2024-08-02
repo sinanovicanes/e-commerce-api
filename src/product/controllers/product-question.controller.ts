@@ -53,7 +53,7 @@ export class ProductQuestionController {
     );
   }
 
-  @Delete('delete/:questionId')
+  @Delete('/:questionId')
   deleteProduct(
     @GetUser() user: User,
     @Param('questionId', ParseObjectIdPipe) questionId: Types.ObjectId,

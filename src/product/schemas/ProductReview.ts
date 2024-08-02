@@ -15,22 +15,13 @@ export class ProductReview extends Document {
   images: string[];
 
   @Prop()
-  stars?: number;
+  stars: number;
 
   @Prop({ required: true, ref: Product.name, type: Types.ObjectId })
   product: Product;
 
   @Prop({ required: true, ref: User.name, type: Types.ObjectId })
   user: User;
-
-  @Prop({
-    default: [],
-    type: [{ ref: ProductReview.name, type: Types.ObjectId }],
-  })
-  replies: ProductReview[] | Types.ObjectId[];
-
-  @Prop({ ref: ProductReview.name, type: Types.ObjectId })
-  parent: ProductReview | Types.ObjectId;
 }
 
 export const ProductReviewSchema = SchemaFactory.createForClass(ProductReview);

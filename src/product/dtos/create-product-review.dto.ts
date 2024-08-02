@@ -19,17 +19,9 @@ export class CreateProductReviewDto {
   description: string;
 
   @IsNumber()
-  @IsOptional()
-  @Min(0)
+  @Min(1)
   @Max(5)
-  stars?: number;
-
-  @IsMongoId()
-  productId: string;
-
-  @IsMongoId()
-  @IsOptional()
-  parentId?: string;
+  stars: number;
 
   @IsImageUrl({ each: true })
   @IsOptional()

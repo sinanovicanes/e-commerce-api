@@ -6,6 +6,7 @@ import { CreateProductReviewDto } from '../dtos';
 import { ProductReview } from '../schemas';
 import { Product } from '../schemas/Product';
 import { ProductService } from './product.service';
+import { maskField, maskFields } from '@/utils/string';
 
 @Injectable()
 export class ProductReviewService {
@@ -21,27 +22,22 @@ export class ProductReviewService {
       throw new NotFoundException('Product not found');
     }
 
-    const productReviews = await this.productReviewModel
+    const reviews = await this.productReviewModel
       .find({
         product: productId,
-        parent: null,
       })
       .select('title description stars createdAt updatedAt')
-      .populate({
-        path: 'replies',
-        model: 'ProductReview',
-        select: 'title description stars createdAt updatedAt',
-        populate: [
-          {
-            path: 'user',
-            select: 'name avatar',
-          },
-        ],
-        options: { sort: { createdAt: 1 }, limit: 1 },
-      })
-      .populate('user', 'name avatar');
+      .populate('user', 'name lastname avatar');
 
-    return productReviews;
+    return reviews.map((review) => ({
+      ...review.toJSON(),
+      user: {
+        fullname: maskFields(review.user.name, review.user.lastname),
+        name: maskField(review.user.name),
+        lastname: maskField(review.user.lastname),
+        avatar: review.user.avatar,
+      },
+    }));
   }
 
   async findReviewById(productId: Types.ObjectId) {
@@ -56,23 +52,17 @@ export class ProductReviewService {
 
   async createReview(
     user: User,
+    productId: Types.ObjectId,
     createProductReviewDto: CreateProductReviewDto,
   ) {
-    if (createProductReviewDto.parentId) {
-      return this.createReviewReply(user, createProductReviewDto);
-    }
-
-    const productId = new Types.ObjectId(createProductReviewDto.productId);
     const isProductExist = await this.productService.isProductExists(productId);
 
     if (!isProductExist) {
       throw new NotFoundException('Product not found');
     }
 
-    const { productId: _productId, ...dto } = createProductReviewDto;
-
     const productReview = new this.productReviewModel({
-      ...dto,
+      ...createProductReviewDto,
       user: user._id,
       product: productId,
     });
@@ -81,49 +71,6 @@ export class ProductReviewService {
 
     return {
       message: 'Product review created successfully',
-      productReviewId: productReview._id,
-    };
-  }
-
-  async createReviewReply(
-    user: User,
-    createProductReviewDto: CreateProductReviewDto,
-  ) {
-    const productId = new Types.ObjectId(createProductReviewDto.productId);
-    const isProductExist = await this.productService.isProductExists(productId);
-
-    if (!isProductExist) {
-      throw new NotFoundException('Product not found');
-    }
-
-    const parentId = new Types.ObjectId(createProductReviewDto.parentId);
-    const parentProductReview = await this.findReviewById(parentId);
-
-    if (!parentProductReview) {
-      throw new NotFoundException('Parent product review not found');
-    }
-
-    const {
-      productId: _productId,
-      parentId: _parentId,
-      ...dto
-    } = createProductReviewDto;
-    const productReview = new this.productReviewModel({
-      ...dto,
-      user: user._id,
-      product: productId,
-      parent: parentId,
-    });
-
-    await productReview.save();
-
-    (parentProductReview.replies as Types.ObjectId[]).push(
-      productReview._id as Types.ObjectId,
-    );
-    await parentProductReview.save();
-
-    return {
-      message: 'Product review reply created successfully',
       productReviewId: productReview._id,
     };
   }

@@ -17,15 +17,20 @@ export class ProductReviewController {
     return this.productReviewService.getReviews(productId);
   }
 
-  @Post('create')
+  @Post('/:productId/create')
   createProduct(
     @GetUser() user: User,
+    @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
     @Body() createProductReviewDto: CreateProductReviewDto,
   ) {
-    return this.productReviewService.createReview(user, createProductReviewDto);
+    return this.productReviewService.createReview(
+      user,
+      productId,
+      createProductReviewDto,
+    );
   }
 
-  @Delete('delete/:reviewId')
+  @Delete('/:reviewId')
   deleteProduct(
     @GetUser() user: User,
     @Param('reviewId', ParseObjectIdPipe) reviewId: Types.ObjectId,
