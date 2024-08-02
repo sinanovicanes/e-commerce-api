@@ -20,7 +20,7 @@ export class JwtAuthGuard implements CanActivate {
     req: Request,
     field: CookieFields = CookieFields.ACCESS_TOKEN,
   ) {
-    return req.cookies[field];
+    return req.cookies ? req.cookies[field] : null;
   }
 
   private async validateByAccessToken(req: Request) {
