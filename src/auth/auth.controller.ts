@@ -27,6 +27,13 @@ export class AuthController {
     return res.send(user);
   }
 
+  @Post('sign-out')
+  async signOut(@Res() res: Response) {
+    this.authService.clearUserTokensFromCookies(res);
+
+    return res.send({ message: 'Successfully signed out' });
+  }
+
   @Public()
   @UseGuards(ResetTokenGuard)
   @Post('reset-password/:token')

@@ -175,6 +175,11 @@ export class AuthService {
     });
   }
 
+  clearUserTokensFromCookies(res: Response) {
+    res.clearCookie(CookieFields.ACCESS_TOKEN);
+    res.clearCookie(CookieFields.REFRESH_TOKEN);
+  }
+
   async generateResetToken(user: User) {
     const resetToken = this.jwtService.sign(
       {
