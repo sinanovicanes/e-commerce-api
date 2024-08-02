@@ -6,11 +6,10 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Response } from 'express';
-import { Model } from 'mongoose';
-import { SignInDto } from './dtos/sign-in.dto';
-import { SignUpDto } from './dtos/sign-up.dto';
+import { Model, Types } from 'mongoose';
+import { ResetPasswordDto, SignInDto, SignUpDto } from './dtos';
 import { CookieFields } from './enums';
-import { RefreshToken } from './schemas';
+import { RefreshToken, ResetToken } from './schemas';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +19,8 @@ export class AuthService {
   @InjectModel(User.name) private readonly userModel: Model<User>;
   @InjectModel(RefreshToken.name)
   private readonly refreshTokenModel: Model<RefreshToken>;
+  @InjectModel(ResetToken.name)
+  private readonly resetTokenModel: Model<ResetToken>;
 
   async signUp(signUpDto: SignUpDto) {
     const { password } = signUpDto;
@@ -133,6 +134,10 @@ export class AuthService {
       return false;
     }
 
+    if (token.expiresAt < new Date()) {
+      return false;
+    }
+
     const isValidToken = await this.encryptionService.compare(
       refreshToken,
       token.token,
@@ -168,5 +173,73 @@ export class AuthService {
       sameSite: 'strict',
       maxAge: weeks(1, true),
     });
+  }
+
+  async generateResetToken(user: User) {
+    const resetToken = this.jwtService.sign(
+      {
+        sub: user._id,
+      },
+      {
+        secret: this.configService.get('JWT_RESET_SECRET'),
+        expiresIn: this.configService.get('JWT_RESET_EXPIRATION'),
+      },
+    );
+
+    const token = await this.encryptionService.hash(resetToken);
+    const expiresAt = adjustDate({ minutes: 30 });
+
+    await this.resetTokenModel.replaceOne(
+      {
+        user: user._id,
+      },
+      {
+        token,
+        user: user._id,
+        expiresAt,
+      },
+      {
+        upsert: true,
+      },
+    );
+
+    return resetToken;
+  }
+
+  async validateResetToken(
+    target: User | Types.ObjectId,
+    refreshToken: string,
+  ) {
+    const user = target instanceof Types.ObjectId ? target : target._id;
+    const resetTokenDoc = await this.resetTokenModel.findOne({ user });
+
+    if (!resetTokenDoc) {
+      return false;
+    }
+
+    if (resetTokenDoc.expiresAt < new Date()) {
+      return false;
+    }
+
+    const isValidToken = await this.encryptionService.compare(
+      refreshToken,
+      resetTokenDoc.token,
+    );
+
+    return isValidToken;
+  }
+
+  async resetPassword(user: User, resetPasswordDto: ResetPasswordDto) {
+    const { password } = resetPasswordDto;
+    const hashedPassword = await this.encryptionService.hash(password);
+
+    await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        password: hashedPassword,
+      },
+    );
+
+    return { message: 'Password has been reset' };
   }
 }

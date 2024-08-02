@@ -4,8 +4,9 @@ import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dtos/sign-up.dto';
-import { LocalAuthGuard } from './guards';
+import { LocalAuthGuard, ResetTokenGuard } from './guards';
 import { Public } from './decorators';
+import { ResetPasswordDto } from './dtos';
 
 @Controller('auth')
 export class AuthController {
@@ -24,5 +25,15 @@ export class AuthController {
     await this.authService.setUserTokensInCookies(user, res);
 
     return res.send(user);
+  }
+
+  @Public()
+  @UseGuards(ResetTokenGuard)
+  @Post('reset-password/:token')
+  async resetPassword(
+    @GetUser() user: User,
+    @Body() resetPasswordDto: ResetPasswordDto,
+  ) {
+    return this.authService.resetPassword(user, resetPasswordDto);
   }
 }

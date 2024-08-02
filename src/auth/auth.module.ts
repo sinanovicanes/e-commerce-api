@@ -5,13 +5,17 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards';
-import { RefreshTokenDefinition } from './schemas';
+import { RefreshTokenDefinition, ResetTokenDefinition } from './schemas';
 import { LocalStrategy } from './strategies';
 
 @Global()
 @Module({
   imports: [
-    MongooseModule.forFeature([UserModelDefinition, RefreshTokenDefinition]),
+    MongooseModule.forFeature([
+      UserModelDefinition,
+      RefreshTokenDefinition,
+      ResetTokenDefinition,
+    ]),
   ],
   controllers: [AuthController],
   providers: [
