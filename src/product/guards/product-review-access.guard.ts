@@ -8,6 +8,7 @@ import {
 import { Request } from 'express';
 import { Types } from 'mongoose';
 import { ProductReviewService } from '../services';
+import { Product } from '../schemas';
 
 @Injectable()
 export class ProductReviewAccessGuard implements CanActivate {
@@ -33,8 +34,9 @@ export class ProductReviewAccessGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const user = request.user as User;
+    const product = request.product as Product;
 
-    if (!user) {
+    if (!user || !product) {
       return false;
     }
 
@@ -47,6 +49,11 @@ export class ProductReviewAccessGuard implements CanActivate {
     const review = await this.productReviewService.findReviewById(reviewId);
 
     if (!review) {
+      return false;
+    }
+
+    // Check if the review is related to the product
+    if (review.product.toString() !== product._id.toString()) {
       return false;
     }
 

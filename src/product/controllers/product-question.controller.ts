@@ -17,47 +17,57 @@ import { ProductQuestionService } from '../services';
 import { MerchantAccessGuard } from '@/merchant/guards';
 import { GetMerchant } from '@/merchant/decorators';
 import { Merchant } from '@/merchant/schemas';
+import {
+  ProductGuard,
+  ProductMerchantAccessGuard,
+  ProductQuestionAccessGuard,
+} from '../guards';
 
-@Controller('product/questions')
+@UseGuards(ProductGuard)
+@Controller('products/:productId/questions')
 export class ProductQuestionController {
   constructor(
     private readonly productQuestionService: ProductQuestionService,
   ) {}
 
   @Public()
-  @Get('/:productId')
+  @Get()
   getProduct(@Param('productId', ParseObjectIdPipe) productId: Types.ObjectId) {
     return this.productQuestionService.getQuestions(productId);
   }
 
-  @Post('create')
+  @Post()
   createProduct(
     @GetUser() user: User,
+    @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
     @Body() createProductQuestionDto: CreateProductQuestionDto,
   ) {
     return this.productQuestionService.createQuestion(
       user,
+      productId,
       createProductQuestionDto,
     );
   }
 
-  @UseGuards(MerchantAccessGuard)
-  @Post('answer')
+  @UseGuards(MerchantAccessGuard, ProductMerchantAccessGuard)
+  @Post('/:questionId/answer')
   answerProductQuestion(
     @GetMerchant() merchant: Merchant,
+    @Param('questionId', ParseObjectIdPipe) questionId: Types.ObjectId,
     @Body() answerProductQuestionDto: AnswerProductQuestionDto,
   ) {
     return this.productQuestionService.answerQuestion(
       merchant,
+      questionId,
       answerProductQuestionDto,
     );
   }
 
+  @UseGuards(ProductQuestionAccessGuard)
   @Delete('/:questionId')
   deleteProduct(
-    @GetUser() user: User,
     @Param('questionId', ParseObjectIdPipe) questionId: Types.ObjectId,
   ) {
-    return this.productQuestionService.deleteQuestion(user, questionId);
+    return this.productQuestionService.deleteQuestion(questionId);
   }
 }

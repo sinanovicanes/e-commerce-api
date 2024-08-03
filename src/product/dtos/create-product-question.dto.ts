@@ -4,7 +4,4 @@ export class CreateProductQuestionDto {
   @IsString()
   @Length(5, 2000)
   question: string;
-
-  @IsMongoId()
-  productId: string;
 }

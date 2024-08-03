@@ -1,16 +1,15 @@
 import { Merchant } from '@/merchant/schemas';
 import { User } from '@/user/schemas';
 import {
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { AnswerProductQuestionDto, CreateProductQuestionDto } from '../dtos';
 import { ProductQuestion } from '../schemas';
-import { Product } from '../schemas/Product';
 import { ProductService } from './product.service';
 
 @Injectable()
@@ -42,7 +41,7 @@ export class ProductQuestionService {
     const product = await this.productQuestionModel.findById(productId);
 
     if (!product) {
-      throw new NotFoundException('Product review not found');
+      throw new NotFoundException('Product question not found');
     }
 
     return product;
@@ -50,10 +49,9 @@ export class ProductQuestionService {
 
   async createQuestion(
     user: User,
+    productId: Types.ObjectId,
     createProductQuestionDto: CreateProductQuestionDto,
   ) {
-    const { productId: _productId, ...dto } = createProductQuestionDto;
-    const productId = new Types.ObjectId(_productId);
     const product = await this.productService.getProductById(productId);
 
     if (!product) {
@@ -61,7 +59,7 @@ export class ProductQuestionService {
     }
 
     const productQuestion = new this.productQuestionModel({
-      ...dto,
+      ...createProductQuestionDto,
       product: product._id,
       user: user._id,
     });
@@ -76,25 +74,14 @@ export class ProductQuestionService {
 
   async answerQuestion(
     merchant: Merchant,
+    questionId: Types.ObjectId,
     answerProductQuestionDto: AnswerProductQuestionDto,
   ) {
-    const { questionId: _questionId, answer } = answerProductQuestionDto;
-    const questionId = new Types.ObjectId(_questionId);
+    const { answer } = answerProductQuestionDto;
     const productQuestion = await this.findQuestionById(questionId);
 
     if (productQuestion.answer) {
-      throw new UnauthorizedException('Question already answered');
-    }
-
-    await productQuestion.populate('product', 'merchant logo');
-
-    if (
-      (productQuestion.product as Product).merchant._id.toString() !==
-      merchant._id.toString()
-    ) {
-      throw new UnauthorizedException(
-        'You are not allowed to answer this question',
-      );
+      throw new ConflictException('Question already answered');
     }
 
     productQuestion.answeredAt = new Date();
@@ -108,10 +95,9 @@ export class ProductQuestionService {
     };
   }
 
-  async deleteQuestion(user: User, questionId: Types.ObjectId) {
+  async deleteQuestion(questionId: Types.ObjectId) {
     const results = await this.productQuestionModel.deleteOne({
       _id: questionId,
-      user: user._id,
     });
 
     if (results.deletedCount === 0) {
