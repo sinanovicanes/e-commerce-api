@@ -16,12 +16,6 @@ export class ProductReviewService {
   private readonly productReviewModel: Model<ProductReview>;
 
   async getReviews(productId: Types.ObjectId) {
-    const isProductExist = await this.productService.isProductExists(productId);
-
-    if (!isProductExist) {
-      throw new NotFoundException('Product not found');
-    }
-
     const reviews = await this.productReviewModel
       .find({
         product: productId,
@@ -55,12 +49,6 @@ export class ProductReviewService {
     productId: Types.ObjectId,
     createProductReviewDto: CreateProductReviewDto,
   ) {
-    const isProductExist = await this.productService.isProductExists(productId);
-
-    if (!isProductExist) {
-      throw new NotFoundException('Product not found');
-    }
-
     const productReview = new this.productReviewModel({
       ...createProductReviewDto,
       user: user._id,
@@ -75,10 +63,9 @@ export class ProductReviewService {
     };
   }
 
-  async deleteReview(user: User, reviewId: Types.ObjectId) {
+  async deleteReview(reviewId: Types.ObjectId) {
     const results = await this.productReviewModel.deleteOne({
       _id: reviewId,
-      user: user._id,
     });
 
     if (results.deletedCount === 0) {

@@ -2,22 +2,32 @@ import { Public } from '@/auth/decorators';
 import { User } from '@/user/schemas';
 import { GetUser } from '@/utils/decorators';
 import { ParseObjectIdPipe } from '@/utils/pipes';
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { Types } from 'mongoose';
 import { CreateProductReviewDto } from '../dtos';
 import { ProductReviewService } from '../services';
+import { ProductGuard, ProductReviewAccessGuard } from '../guards';
 
-@Controller('product/reviews')
+@UseGuards(ProductGuard)
+@Controller('products/:productId/reviews')
 export class ProductReviewController {
   constructor(private readonly productReviewService: ProductReviewService) {}
 
   @Public()
-  @Get('/:productId')
+  @Get()
   getProduct(@Param('productId', ParseObjectIdPipe) productId: Types.ObjectId) {
     return this.productReviewService.getReviews(productId);
   }
 
-  @Post('/:productId/create')
+  @Post()
   createProduct(
     @GetUser() user: User,
     @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
@@ -30,11 +40,11 @@ export class ProductReviewController {
     );
   }
 
+  @UseGuards(ProductReviewAccessGuard)
   @Delete('/:reviewId')
   deleteProduct(
-    @GetUser() user: User,
     @Param('reviewId', ParseObjectIdPipe) reviewId: Types.ObjectId,
   ) {
-    return this.productReviewService.deleteReview(user, reviewId);
+    return this.productReviewService.deleteReview(reviewId);
   }
 }
