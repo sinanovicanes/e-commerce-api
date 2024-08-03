@@ -11,6 +11,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { EncryptionModule } from './encryption/encryption.module';
 import { MerchantModule } from './merchant/merchant.module';
 import { ProductModule } from './product/product.module';
+import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ProductModule } from './product/product.module';
     EncryptionModule,
     MerchantModule,
     ProductModule,
+    ShoppingCartModule,
   ],
   controllers: [AppController],
   providers: [AppService],
