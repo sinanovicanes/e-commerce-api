@@ -17,7 +17,7 @@ import { MerchantAccessGuard } from './guards/merchant-access.guard';
 import { Types } from 'mongoose';
 import { GetMerchant } from './decorators';
 
-@Controller('merchant')
+@Controller('merchants')
 export class MerchantController {
   constructor(private readonly merchantService: MerchantService) {}
 
@@ -27,7 +27,7 @@ export class MerchantController {
     return this.merchantService.getMerchantById(id);
   }
 
-  @Post('create')
+  @Post()
   createMerchant(
     @Body() createMerchantDto: CreateMerchantDto,
     @GetUser() user: User,
@@ -36,7 +36,7 @@ export class MerchantController {
   }
 
   @UseGuards(MerchantAccessGuard)
-  @Patch('update')
+  @Patch()
   updateMerchant(
     @GetMerchant('_id') id: Types.ObjectId,
     @Body() updateMerchantDto: UpdateMerchantDto,
