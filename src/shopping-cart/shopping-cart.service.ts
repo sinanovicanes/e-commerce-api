@@ -60,7 +60,12 @@ export class ShoppingCartService {
       throw new NotFoundException('Product not found in the shopping cart');
     }
 
-    return cart;
+    const total = await cart.getTotalPrice();
+
+    return {
+      total,
+      ...cart.toJSON(),
+    };
   }
 
   async updateProductQuantity(
