@@ -16,6 +16,7 @@ import {
 import { Types } from 'mongoose';
 import { CreateProductDto, UpdateProductDto } from '../dtos';
 import { ProductService } from '../services';
+import { ProductGuard, ProductMerchantAccessGuard } from '../guards';
 
 @Controller('products')
 export class ProductController {
@@ -28,7 +29,7 @@ export class ProductController {
   }
 
   @UseGuards(MerchantAccessGuard)
-  @Post('create')
+  @Post()
   createProduct(
     @GetMerchant() merchant: Merchant,
     @Body() createProductDto: CreateProductDto,
@@ -36,8 +37,8 @@ export class ProductController {
     return this.productService.createProduct(merchant, createProductDto);
   }
 
-  @UseGuards(MerchantAccessGuard)
-  @Patch('update/:productId')
+  @UseGuards(MerchantAccessGuard, ProductGuard, ProductMerchantAccessGuard)
+  @Patch('/:productId')
   updateProduct(
     @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
     @Body() updateProductDto: UpdateProductDto,
@@ -45,8 +46,8 @@ export class ProductController {
     return this.productService.updateProduct(productId, updateProductDto);
   }
 
-  @UseGuards(MerchantAccessGuard)
-  @Delete('delete/:productId')
+  @UseGuards(MerchantAccessGuard, ProductGuard, ProductMerchantAccessGuard)
+  @Delete('/:productId')
   deleteProduct(
     @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
   ) {
