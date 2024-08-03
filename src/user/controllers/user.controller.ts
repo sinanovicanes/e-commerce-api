@@ -1,8 +1,8 @@
 import { GetUser } from '@/utils/decorators';
 import { Body, Controller, Get, Patch } from '@nestjs/common';
-import { UpdateUserDto } from './dtos/update-user.dto';
-import { User } from './schemas/User';
-import { UserService } from './user.service';
+import { UpdateUserDto } from '../dtos';
+import { User } from '../schemas';
+import { UserService } from '../services';
 
 @Controller('users')
 export class UserController {

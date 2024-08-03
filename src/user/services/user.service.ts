@@ -2,8 +2,8 @@ import { EncryptionService } from '@/encryption/encryption.service';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UpdateUserDto } from './dtos/update-user.dto';
-import { User } from './schemas/User';
+import { UpdateUserDto } from '../dtos';
+import { User } from '../schemas';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()

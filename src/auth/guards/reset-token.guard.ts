@@ -1,4 +1,4 @@
-import { UserService } from '@/user/user.service';
+import { UserService } from '@/user/services';
 import { CanActivate, ExecutionContext, Inject } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';

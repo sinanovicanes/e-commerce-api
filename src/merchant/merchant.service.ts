@@ -10,7 +10,7 @@ import { Merchant } from './schemas';
 import { Model, Types } from 'mongoose';
 import { CreateMerchantDto, UpdateMerchantDto } from './dtos';
 import { User } from '@/user/schemas';
-import { UserService } from '@/user/user.service';
+import { UserService } from '@/user/services';
 
 @Injectable()
 export class MerchantService {
