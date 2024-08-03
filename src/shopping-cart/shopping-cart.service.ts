@@ -26,7 +26,10 @@ export class ShoppingCartService {
 
     let cart = await this.shoppingCartModel.findOneAndUpdate(
       { user: userId, 'products.product': productId },
-      { $inc: { 'products.$.quantity': quantity } },
+      {
+        $inc: { 'products.$.quantity': quantity },
+        expiresAt: adjustDate({ weeks: 2 }),
+      },
       { new: true },
     );
 
@@ -35,7 +38,7 @@ export class ShoppingCartService {
         { user: userId },
         {
           $push: { products: { product: productId, quantity } },
-          $setOnInsert: { expiresAt: adjustDate({ weeks: 2 }) },
+          expiresAt: adjustDate({ weeks: 2 }),
         },
         { new: true, upsert: true },
       );
@@ -52,7 +55,10 @@ export class ShoppingCartService {
   async removeProduct(userId: Types.ObjectId, productId: Types.ObjectId) {
     const cart = await this.shoppingCartModel.findOneAndUpdate(
       { user: userId, 'products.product': productId },
-      { $pull: { products: { product: productId } } },
+      {
+        $pull: { products: { product: productId } },
+        expiresAt: adjustDate({ weeks: 2 }),
+      },
       { new: true },
     );
 
@@ -77,7 +83,10 @@ export class ShoppingCartService {
 
     const cart = await this.shoppingCartModel.findOneAndUpdate(
       { user: userId, 'products.product': productId },
-      { $set: { 'products.$.quantity': quantity } },
+      {
+        $set: { 'products.$.quantity': quantity },
+        expiresAt: adjustDate({ weeks: 2 }),
+      },
       { new: true },
     );
 
