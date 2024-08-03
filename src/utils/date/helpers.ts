@@ -1,9 +1,5 @@
-export function milliseconds(milliseconds: number) {
-  return milliseconds * 1000;
-}
-
 export function seconds(seconds: number, ms = false) {
-  return ms ? milliseconds(seconds) : seconds;
+  return ms ? seconds * 1000 : seconds;
 }
 
 export function minutes(minutes: number, ms = false) {
