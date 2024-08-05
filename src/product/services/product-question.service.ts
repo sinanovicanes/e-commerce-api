@@ -2,7 +2,6 @@ import { Merchant } from '@/merchant/schemas';
 import { User } from '@/user/schemas';
 import {
   ConflictException,
-  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,21 +9,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { AnswerProductQuestionDto, CreateProductQuestionDto } from '../dtos';
 import { ProductQuestion } from '../schemas';
-import { ProductService } from './product.service';
 
 @Injectable()
 export class ProductQuestionService {
-  @Inject() private readonly productService: ProductService;
   @InjectModel(ProductQuestion.name)
   private readonly productQuestionModel: Model<ProductQuestion>;
 
   async getQuestions(productId: Types.ObjectId) {
-    const isProductExist = await this.productService.isProductExists(productId);
-
-    if (!isProductExist) {
-      throw new NotFoundException('Product not found');
-    }
-
     const productQuestions = await this.productQuestionModel
       .find({
         product: productId,
@@ -52,15 +43,9 @@ export class ProductQuestionService {
     productId: Types.ObjectId,
     createProductQuestionDto: CreateProductQuestionDto,
   ) {
-    const product = await this.productService.getProductById(productId);
-
-    if (!product) {
-      throw new NotFoundException('Product not found');
-    }
-
     const productQuestion = new this.productQuestionModel({
       ...createProductQuestionDto,
-      product: product._id,
+      product: productId,
       user: user._id,
     });
 
@@ -96,16 +81,16 @@ export class ProductQuestionService {
   }
 
   async deleteQuestion(questionId: Types.ObjectId) {
-    const results = await this.productQuestionModel.deleteOne({
-      _id: questionId,
-    });
+    const question =
+      await this.productQuestionModel.findByIdAndDelete(questionId);
 
-    if (results.deletedCount === 0) {
+    if (!question) {
       throw new NotFoundException('Product question not found');
     }
 
     return {
-      message: 'Product question deleted successfully',
+      message: 'Question deleted successfully',
+      question,
     };
   }
 }

@@ -32,12 +32,14 @@ export class ProductQuestionController {
 
   @Public()
   @Get()
-  getProduct(@Param('productId', ParseObjectIdPipe) productId: Types.ObjectId) {
+  getQuestion(
+    @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
+  ) {
     return this.productQuestionService.getQuestions(productId);
   }
 
   @Post()
-  createProduct(
+  createQuestion(
     @GetUser() user: User,
     @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
     @Body() createProductQuestionDto: CreateProductQuestionDto,
@@ -51,7 +53,7 @@ export class ProductQuestionController {
 
   @UseGuards(MerchantAccessGuard, ProductMerchantAccessGuard)
   @Post('/:questionId/answer')
-  answerProductQuestion(
+  answerQuestion(
     @GetMerchant() merchant: Merchant,
     @Param('questionId', ParseObjectIdPipe) questionId: Types.ObjectId,
     @Body() answerProductQuestionDto: AnswerProductQuestionDto,
@@ -65,7 +67,7 @@ export class ProductQuestionController {
 
   @UseGuards(ProductQuestionAccessGuard)
   @Delete('/:questionId')
-  deleteProduct(
+  deleteQuestion(
     @Param('questionId', ParseObjectIdPipe) questionId: Types.ObjectId,
   ) {
     return this.productQuestionService.deleteQuestion(questionId);

@@ -23,12 +23,12 @@ export class ProductReviewController {
 
   @Public()
   @Get()
-  getProduct(@Param('productId', ParseObjectIdPipe) productId: Types.ObjectId) {
+  getReview(@Param('productId', ParseObjectIdPipe) productId: Types.ObjectId) {
     return this.productReviewService.getReviews(productId);
   }
 
   @Post()
-  createProduct(
+  createReview(
     @GetUser() user: User,
     @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
     @Body() createProductReviewDto: CreateProductReviewDto,
@@ -42,9 +42,7 @@ export class ProductReviewController {
 
   @UseGuards(ProductReviewAccessGuard)
   @Delete('/:reviewId')
-  deleteProduct(
-    @Param('reviewId', ParseObjectIdPipe) reviewId: Types.ObjectId,
-  ) {
+  deleteReview(@Param('reviewId', ParseObjectIdPipe) reviewId: Types.ObjectId) {
     return this.productReviewService.deleteReview(reviewId);
   }
 }

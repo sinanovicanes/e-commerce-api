@@ -1,17 +1,13 @@
 import { User } from '@/user/schemas';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { maskField, maskFields } from '@/utils/string';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CreateProductReviewDto } from '../dtos';
 import { ProductReview } from '../schemas';
-import { Product } from '../schemas/Product';
-import { ProductService } from './product.service';
-import { maskField, maskFields } from '@/utils/string';
 
 @Injectable()
 export class ProductReviewService {
-  @Inject() private readonly productService: ProductService;
-  @InjectModel(Product.name) private readonly productModel: Model<Product>;
   @InjectModel(ProductReview.name)
   private readonly productReviewModel: Model<ProductReview>;
 
@@ -64,16 +60,15 @@ export class ProductReviewService {
   }
 
   async deleteReview(reviewId: Types.ObjectId) {
-    const results = await this.productReviewModel.deleteOne({
-      _id: reviewId,
-    });
+    const review = await this.productReviewModel.findByIdAndDelete(reviewId);
 
-    if (results.deletedCount === 0) {
+    if (!review) {
       throw new NotFoundException('Product review not found');
     }
 
     return {
-      message: 'Product review deleted successfully',
+      message: 'Review deleted successfully',
+      review,
     };
   }
 }

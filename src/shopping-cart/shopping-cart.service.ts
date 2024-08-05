@@ -94,11 +94,11 @@ export class ShoppingCartService {
       throw new NotFoundException('Product not found in cart');
     }
 
-    const totalPrice = await cart.getTotalPrice();
+    const total = await cart.getTotalPrice();
 
     return {
       ...cart.toJSON(),
-      totalPrice,
+      total,
     };
   }
 
