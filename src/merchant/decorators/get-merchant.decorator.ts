@@ -1,7 +1,7 @@
 import {
   createParamDecorator,
   ExecutionContext,
-  UnauthorizedException,
+  NotFoundException,
 } from '@nestjs/common';
 import { Merchant } from '../schemas';
 
@@ -10,7 +10,7 @@ export const GetMerchant = createParamDecorator(
     const request = ctx.switchToHttp().getRequest();
     const merchant = request.merchant as Merchant;
 
-    if (!merchant) throw new UnauthorizedException('Merchant not found');
+    if (!merchant) throw new NotFoundException('Merchant not found');
 
     return data ? merchant[data] : merchant;
   },
