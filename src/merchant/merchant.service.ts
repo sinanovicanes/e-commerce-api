@@ -1,3 +1,4 @@
+import { User } from '@/user/schemas';
 import {
   BadRequestException,
   HttpException,
@@ -6,15 +7,15 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Merchant } from './schemas';
 import { Model, Types } from 'mongoose';
 import { CreateMerchantDto, UpdateMerchantDto } from './dtos';
-import { User } from '@/user/schemas';
-import { UserService } from '@/user/services';
+import { Merchant } from './schemas';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { MerchantCreateEvent, MerchantUpdateEvent } from './events';
 
 @Injectable()
 export class MerchantService {
-  @Inject() private readonly userService: UserService;
+  @Inject() private readonly eventEmitter: EventEmitter2;
   @InjectModel(Merchant.name) private readonly merchantModel: Model<Merchant>;
 
   async getMerchantById(merchantId: Types.ObjectId) {
@@ -42,6 +43,11 @@ export class MerchantService {
       );
     }
 
+    this.eventEmitter.emit(
+      MerchantCreateEvent.eventName,
+      MerchantCreateEvent.fromMerchant(merchant),
+    );
+
     return {
       message: 'Merchant created successfully',
       merchant: {
@@ -66,6 +72,12 @@ export class MerchantService {
     const merchant = await this.merchantModel.findByIdAndUpdate(
       merchantId,
       updateMerchantDto,
+      { new: true },
+    );
+
+    this.eventEmitter.emit(
+      MerchantUpdateEvent.eventName,
+      MerchantUpdateEvent.fromMerchant(merchant, updateMerchantDto),
     );
 
     return merchant;
