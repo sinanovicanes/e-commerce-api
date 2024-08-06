@@ -2,6 +2,7 @@ import { Merchant } from '@/merchant/schemas';
 import { User } from '@/user/schemas';
 import {
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -9,9 +10,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { AnswerProductQuestionDto, CreateProductQuestionDto } from '../dtos';
 import { ProductQuestion } from '../schemas';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import {
+  ProductQuestionCreateEvent,
+  ProductQuestionDeleteEvent,
+  ProductQuestionUpdateEvent,
+} from '../events';
 
 @Injectable()
 export class ProductQuestionService {
+  @Inject() private readonly eventEmitter: EventEmitter2;
   @InjectModel(ProductQuestion.name)
   private readonly productQuestionModel: Model<ProductQuestion>;
 
@@ -51,6 +59,11 @@ export class ProductQuestionService {
 
     await productQuestion.save();
 
+    this.eventEmitter.emit(
+      ProductQuestionCreateEvent.eventName,
+      ProductQuestionCreateEvent.fromQuestion(productQuestion),
+    );
+
     return {
       message: 'Product question created successfully',
       productQuestionId: productQuestion._id,
@@ -75,6 +88,11 @@ export class ProductQuestionService {
 
     await productQuestion.save();
 
+    this.eventEmitter.emit(
+      ProductQuestionUpdateEvent.eventName,
+      ProductQuestionUpdateEvent.fromQuestion(productQuestion),
+    );
+
     return {
       message: 'Product question answered successfully',
     };
@@ -87,6 +105,11 @@ export class ProductQuestionService {
     if (!question) {
       throw new NotFoundException('Product question not found');
     }
+
+    this.eventEmitter.emit(
+      ProductQuestionDeleteEvent.eventName,
+      ProductQuestionDeleteEvent.fromQuestion(question),
+    );
 
     return {
       message: 'Question deleted successfully',
