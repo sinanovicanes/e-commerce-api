@@ -1,17 +1,18 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+import { JwtModule } from '@nestjs/jwt';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { validate } from './config/env.validation';
-import { MongooseModule } from '@nestjs/mongoose';
-import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
-import { CacheModule } from '@nestjs/cache-manager';
-import { JwtModule } from '@nestjs/jwt';
+import { validate } from './config/env.validation';
 import { EncryptionModule } from './encryption/encryption.module';
 import { MerchantModule } from './merchant/merchant.module';
 import { ProductModule } from './product/product.module';
 import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
       ttl: 15,
       max: 10,
     }),
+    EventEmitterModule.forRoot(),
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
