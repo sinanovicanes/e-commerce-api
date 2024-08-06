@@ -4,3 +4,5 @@ export * from './product-delete.event';
 export * from './product-question-create.event';
 export * from './product-question-update.event';
 export * from './product-question-delete.event';
+export * from './product-review-create.event';
+export * from './product-review-delete.event';

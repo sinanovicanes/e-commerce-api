@@ -1,13 +1,16 @@
 import { User } from '@/user/schemas';
 import { maskField, maskFields } from '@/utils/string';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CreateProductReviewDto } from '../dtos';
 import { ProductReview } from '../schemas';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { ProductReviewCreateEvent, ProductReviewDeleteEvent } from '../events';
 
 @Injectable()
 export class ProductReviewService {
+  @Inject() private readonly eventEmitter: EventEmitter2;
   @InjectModel(ProductReview.name)
   private readonly productReviewModel: Model<ProductReview>;
 
@@ -45,17 +48,22 @@ export class ProductReviewService {
     productId: Types.ObjectId,
     createProductReviewDto: CreateProductReviewDto,
   ) {
-    const productReview = new this.productReviewModel({
+    const review = new this.productReviewModel({
       ...createProductReviewDto,
       user: user._id,
       product: productId,
     });
 
-    await productReview.save();
+    await review.save();
+
+    this.eventEmitter.emit(
+      ProductReviewCreateEvent.eventName,
+      ProductReviewCreateEvent.fromReview(review),
+    );
 
     return {
       message: 'Product review created successfully',
-      productReviewId: productReview._id,
+      review,
     };
   }
 
@@ -65,6 +73,11 @@ export class ProductReviewService {
     if (!review) {
       throw new NotFoundException('Product review not found');
     }
+
+    this.eventEmitter.emit(
+      ProductReviewDeleteEvent.eventName,
+      ProductReviewDeleteEvent.fromReview(review),
+    );
 
     return {
       message: 'Review deleted successfully',
