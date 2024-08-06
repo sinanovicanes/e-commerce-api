@@ -1,6 +1,7 @@
 import { Merchant } from '@/merchant/schemas';
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -8,9 +9,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CreateProductDto, UpdateProductDto } from '../dtos';
 import { Product } from '../schemas';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import {
+  ProductCreateEvent,
+  ProductDeleteEvent,
+  ProductUpdateEvent,
+} from '../events';
 
 @Injectable()
 export class ProductService {
+  @Inject() private readonly eventEmitter: EventEmitter2;
   @InjectModel(Product.name) private readonly productModel: Model<Product>;
 
   async isProductExists(productId: Types.ObjectId) {
@@ -55,6 +63,11 @@ export class ProductService {
 
     await product.save();
 
+    this.eventEmitter.emit(
+      ProductCreateEvent.eventName,
+      ProductCreateEvent.fromProduct(product),
+    );
+
     return {
       message: 'Product created successfully',
       productId: product._id,
@@ -71,20 +84,31 @@ export class ProductService {
       );
     }
 
+    // TODO: Refactor this to use findByIdAndUpdate
     const product = await this.getProductById(productId);
 
     await product.updateOne(updateProductDto);
+
+    this.eventEmitter.emit(
+      ProductUpdateEvent.eventName,
+      ProductUpdateEvent.fromProduct(product, updateProductDto),
+    );
 
     return { message: 'Product updated successfully' };
   }
 
   async deleteProduct(productId: Types.ObjectId) {
-    const results = await this.productModel.deleteOne({ _id: productId });
+    const product = await this.productModel.findByIdAndDelete(productId);
 
-    if (results.deletedCount === 0) {
+    if (!product) {
       throw new NotFoundException('Product not found');
     }
 
-    return { message: 'Product deleted successfully' };
+    this.eventEmitter.emit(
+      ProductDeleteEvent.eventName,
+      ProductDeleteEvent.fromProduct(product),
+    );
+
+    return { message: 'Product deleted successfully', product };
   }
 }
