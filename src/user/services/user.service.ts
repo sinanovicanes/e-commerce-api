@@ -5,12 +5,15 @@ import { Model } from 'mongoose';
 import { UpdateUserDto } from '../dtos';
 import { User } from '../schemas';
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { UserUpdateEvent } from '../events';
 
 @Injectable()
 export class UserService {
   @Inject() private readonly encryptionService: EncryptionService;
   @InjectModel(User.name) private readonly userModel: Model<User>;
   @Inject(CACHE_MANAGER) private readonly cacheManager: Cache;
+  @Inject() private readonly eventEmitter: EventEmitter2;
 
   async getUserByIdUsingCache(userId: string): Promise<User | undefined> {
     const cacheKey = `user:${userId}`;
@@ -40,11 +43,16 @@ export class UserService {
       );
     }
 
-    const results = await this.userModel.findByIdAndUpdate(id, updateUserDto);
+    const user = await this.userModel.findByIdAndUpdate(id, updateUserDto);
 
-    if (!results) {
+    if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+
+    this.eventEmitter.emit(
+      UserUpdateEvent.eventName,
+      new UserUpdateEvent(user, updateUserDto),
+    );
 
     return { message: 'User updated successfully' };
   }
