@@ -1,13 +1,21 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ShoppingCart } from './schemas';
 import { AddProductDto, UpdateProductQuantityDto } from './dtos';
 import { adjustDate } from '@/utils/date';
 import { Product } from '@/product/schemas';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import {
+  CartAddEvent,
+  CartRemoveEvent,
+  CartClearEvent,
+  CartUpdateQuantityEvent,
+} from './events';
 
 @Injectable()
 export class ShoppingCartService {
+  @Inject() private readonly eventEmitter: EventEmitter2;
   @InjectModel(ShoppingCart.name)
   private readonly shoppingCartModel: Model<ShoppingCart>;
 
@@ -19,6 +27,16 @@ export class ShoppingCartService {
     }
 
     return cart;
+  }
+
+  async getCart(userId: Types.ObjectId) {
+    const cart = await this.findCart(userId);
+    const total = await cart.getTotalPrice();
+
+    return {
+      ...cart.toJSON(),
+      total,
+    };
   }
 
   async addProduct(userId: Types.ObjectId, addProductDto: AddProductDto) {
@@ -46,9 +64,14 @@ export class ShoppingCartService {
 
     const total = await cart.getTotalPrice();
 
+    this.eventEmitter.emit(
+      CartAddEvent.eventName,
+      new CartAddEvent(cart, productId, quantity),
+    );
+
     return {
-      total,
       ...cart.toJSON(),
+      total,
     };
   }
 
@@ -68,9 +91,14 @@ export class ShoppingCartService {
 
     const total = await cart.getTotalPrice();
 
+    this.eventEmitter.emit(
+      CartRemoveEvent.eventName,
+      new CartRemoveEvent(cart, productId.toString()),
+    );
+
     return {
-      total,
       ...cart.toJSON(),
+      total,
     };
   }
 
@@ -96,6 +124,11 @@ export class ShoppingCartService {
 
     const total = await cart.getTotalPrice();
 
+    this.eventEmitter.emit(
+      CartUpdateQuantityEvent.eventName,
+      new CartUpdateQuantityEvent(cart, productId, quantity),
+    );
+
     return {
       ...cart.toJSON(),
       total,
@@ -110,6 +143,8 @@ export class ShoppingCartService {
     if (!cart) {
       throw new NotFoundException('Shopping cart not found');
     }
+
+    this.eventEmitter.emit(CartClearEvent.eventName, new CartClearEvent(cart));
 
     return { message: 'Shopping cart cleared', cart };
   }
