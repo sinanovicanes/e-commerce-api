@@ -13,6 +13,7 @@ import { MerchantModule } from './merchant/merchant.module';
 import { ProductModule } from './product/product.module';
 import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 import { UserModule } from './user/user.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { UserModule } from './user/user.module';
     MerchantModule,
     ProductModule,
     ShoppingCartModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

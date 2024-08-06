@@ -3,6 +3,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   Max,
   Min,
@@ -48,6 +49,21 @@ class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   MONGO_URI: string;
+
+  @IsString()
+  @IsNotEmpty()
+  MAILER_HOST: string;
+
+  @IsNumber()
+  MAILER_PORT: number = 587;
+
+  @IsString()
+  @IsNotEmpty()
+  MAILER_USER: string;
+
+  @IsString()
+  @IsOptional()
+  MAILER_PASS?: string;
 }
 
 export function validate(config: Record<string, unknown>) {
