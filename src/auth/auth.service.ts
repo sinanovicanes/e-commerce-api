@@ -10,12 +10,19 @@ import { Model, Types } from 'mongoose';
 import { ResetPasswordDto, SignInDto, SignUpDto } from './dtos';
 import { CookieFields } from './enums';
 import { RefreshToken, ResetToken } from './schemas';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import {
+  UserRegisterEvent,
+  UserSignedOutEvent,
+  UserResetPasswordEvent,
+} from './events';
 
 @Injectable()
 export class AuthService {
   @Inject() private readonly encryptionService: EncryptionService;
   @Inject() private readonly jwtService: JwtService;
   @Inject() private readonly configService: ConfigService;
+  @Inject() private readonly eventEmitter: EventEmitter2;
   @InjectModel(User.name) private readonly userModel: Model<User>;
   @InjectModel(RefreshToken.name)
   private readonly refreshTokenModel: Model<RefreshToken>;
@@ -35,6 +42,11 @@ export class AuthService {
         HttpStatus.CONFLICT,
       );
     }
+
+    this.eventEmitter.emit(
+      UserRegisterEvent.eventName,
+      UserRegisterEvent.fromUser(user),
+    );
 
     return this.generateUserTokens(user);
   }
@@ -75,6 +87,17 @@ export class AuthService {
     }
 
     return this.generateUserTokens(user);
+  }
+
+  async signOut(user: User, res: Response) {
+    this.clearUserTokensFromCookies(res);
+
+    this.eventEmitter.emit(
+      UserSignedOutEvent.eventName,
+      UserSignedOutEvent.fromUser(user),
+    );
+
+    return { message: 'User has been signed out' };
   }
 
   async validateUser(username: string, password: string) {
@@ -243,6 +266,11 @@ export class AuthService {
       {
         password: hashedPassword,
       },
+    );
+
+    this.eventEmitter.emit(
+      UserResetPasswordEvent.eventName,
+      UserResetPasswordEvent.fromUser(user),
     );
 
     return { message: 'Password has been reset' };

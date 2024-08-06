@@ -28,10 +28,11 @@ export class AuthController {
   }
 
   @Post('sign-out')
-  async signOut(@Res() res: Response) {
-    this.authService.clearUserTokensFromCookies(res);
-
-    return res.send({ message: 'Successfully signed out' });
+  async signOut(
+    @GetUser() user: User,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.authService.signOut(user, res);
   }
 
   @Public()
