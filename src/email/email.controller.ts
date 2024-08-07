@@ -3,6 +3,7 @@ import { EmailService } from './email.service';
 import { OnEvent } from '@nestjs/event-emitter';
 import {
   UserRegisterEvent,
+  UserResetPasswordEvent,
   UserResetPasswordRequestEvent,
 } from '@/auth/events';
 import { EmailType } from './enums';
@@ -23,14 +24,27 @@ export class EmailController {
   }
 
   @OnEvent(UserResetPasswordRequestEvent.event)
-  async handleUserResetPasswordEvent(event: UserResetPasswordRequestEvent) {
-    await this.emailService.sendMail(EmailType.RESET_PASSWORD, {
+  async handleUserResetPasswordRequestEvent(
+    event: UserResetPasswordRequestEvent,
+  ) {
+    await this.emailService.sendMail(EmailType.PASSWORD_RESET_REQUEST, {
       to: event.user.email,
       subject: 'Reset your password',
       context: {
         name: event.user.name,
         // This should be the frontend URL with the reset token
         resetLink: `http://localhost:3000/reset-password/${event.resetToken}`,
+      },
+    });
+  }
+
+  @OnEvent(UserResetPasswordEvent.event, { async: true })
+  async handleUserResetPasswordEvent(event: UserResetPasswordEvent) {
+    await this.emailService.sendMail(EmailType.PASSWORD_RESET_SUCCESS, {
+      to: event.user.email,
+      subject: 'Password reset successful',
+      context: {
+        name: event.user.name,
       },
     });
   }

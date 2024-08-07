@@ -1,4 +1,5 @@
 export enum EmailType {
   WELCOME = 'welcome',
-  RESET_PASSWORD = 'reset-password',
+  PASSWORD_RESET_SUCCESS = 'password-reset-success',
+  PASSWORD_RESET_REQUEST = 'password-reset-request',
 }
