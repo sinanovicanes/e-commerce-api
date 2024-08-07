@@ -6,7 +6,7 @@ import { AuthService } from './auth.service';
 import { SignUpDto } from './dtos/sign-up.dto';
 import { LocalAuthGuard, ResetTokenGuard } from './guards';
 import { Public } from './decorators';
-import { ResetPasswordDto } from './dtos';
+import { ResetPasswordDto, ResetPasswordRequestDto } from './dtos';
 
 @Controller('auth')
 export class AuthController {
@@ -33,6 +33,14 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.authService.signOut(user, res);
+  }
+
+  @Public()
+  @Post('reset-password-request')
+  async forgotPassword(
+    @Body() resetPasswordRequestDto: ResetPasswordRequestDto,
+  ) {
+    return this.authService.forgotPassword(resetPasswordRequestDto);
   }
 
   @Public()

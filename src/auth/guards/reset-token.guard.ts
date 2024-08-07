@@ -33,7 +33,10 @@ export class ResetTokenGuard implements CanActivate {
         return false;
       }
 
-      const isValidToken = this.authService.validateResetToken(user, token);
+      const isValidToken = await this.authService.validateResetToken(
+        user,
+        token,
+      );
 
       if (!isValidToken) {
         return false;

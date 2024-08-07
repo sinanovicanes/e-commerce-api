@@ -7,7 +7,12 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Response } from 'express';
 import { Model, Types } from 'mongoose';
-import { ResetPasswordDto, SignInDto, SignUpDto } from './dtos';
+import {
+  ResetPasswordDto,
+  ResetPasswordRequestDto,
+  SignInDto,
+  SignUpDto,
+} from './dtos';
 import { CookieFields } from './enums';
 import { RefreshToken, ResetToken } from './schemas';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -15,6 +20,7 @@ import {
   UserRegisterEvent,
   UserSignedOutEvent,
   UserResetPasswordEvent,
+  UserResetPasswordRequestEvent,
 } from './events';
 
 @Injectable()
@@ -234,10 +240,7 @@ export class AuthService {
     return resetToken;
   }
 
-  async validateResetToken(
-    target: User | Types.ObjectId,
-    refreshToken: string,
-  ) {
+  async validateResetToken(target: User | Types.ObjectId, resetToken: string) {
     const user = target instanceof Types.ObjectId ? target : target._id;
     const resetTokenDoc = await this.resetTokenModel.findOne({ user });
 
@@ -250,11 +253,29 @@ export class AuthService {
     }
 
     const isValidToken = await this.encryptionService.compare(
-      refreshToken,
+      resetToken,
       resetTokenDoc.token,
     );
 
     return isValidToken;
+  }
+
+  async forgotPassword(resetPasswordRequestDto: ResetPasswordRequestDto) {
+    const { email } = resetPasswordRequestDto;
+    const user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const resetToken = await this.generateResetToken(user);
+
+    this.eventEmitter.emit(
+      UserResetPasswordRequestEvent.eventName,
+      new UserResetPasswordRequestEvent(user, resetToken),
+    );
+
+    return { message: 'Reset password mail sended to your email address' };
   }
 
   async resetPassword(user: User, resetPasswordDto: ResetPasswordDto) {
@@ -267,6 +288,8 @@ export class AuthService {
         password: hashedPassword,
       },
     );
+
+    await this.resetTokenModel.deleteOne({ user: user._id });
 
     this.eventEmitter.emit(
       UserResetPasswordEvent.eventName,

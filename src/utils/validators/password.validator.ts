@@ -7,7 +7,7 @@ import {
   isStrongPassword,
 } from 'class-validator';
 
-@ValidatorConstraint({ name: 'customText', async: false })
+@ValidatorConstraint()
 export class IsValidPasswordConstraint implements ValidatorConstraintInterface {
   validate(text: string, args: ValidationArguments) {
     return isStrongPassword(text, {
@@ -15,6 +15,7 @@ export class IsValidPasswordConstraint implements ValidatorConstraintInterface {
       minLowercase: 1,
       minUppercase: 1,
       minNumbers: 1,
+      minSymbols: 0,
     });
   }
 
