@@ -60,8 +60,8 @@ export class ProductQuestionService {
     await productQuestion.save();
 
     this.eventEmitter.emit(
-      ProductQuestionCreateEvent.eventName,
-      ProductQuestionCreateEvent.fromQuestion(productQuestion),
+      ProductQuestionCreateEvent.event,
+      new ProductQuestionCreateEvent(productQuestion),
     );
 
     return {
@@ -89,8 +89,8 @@ export class ProductQuestionService {
     await productQuestion.save();
 
     this.eventEmitter.emit(
-      ProductQuestionUpdateEvent.eventName,
-      ProductQuestionUpdateEvent.fromQuestion(productQuestion),
+      ProductQuestionUpdateEvent.event,
+      new ProductQuestionUpdateEvent(productQuestion),
     );
 
     return {
@@ -107,8 +107,8 @@ export class ProductQuestionService {
     }
 
     this.eventEmitter.emit(
-      ProductQuestionDeleteEvent.eventName,
-      ProductQuestionDeleteEvent.fromQuestion(question),
+      ProductQuestionDeleteEvent.event,
+      new ProductQuestionDeleteEvent(question),
     );
 
     return {

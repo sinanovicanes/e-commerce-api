@@ -1,11 +1,7 @@
 import { Product } from '../schemas';
 
 export class ProductCreateEvent {
+  static event = 'product.create';
+
   constructor(public readonly product: Product) {}
-
-  static eventName = 'product.create';
-
-  static fromProduct(product: Product) {
-    return new ProductCreateEvent(product);
-  }
 }

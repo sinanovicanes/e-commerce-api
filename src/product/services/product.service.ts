@@ -64,8 +64,8 @@ export class ProductService {
     await product.save();
 
     this.eventEmitter.emit(
-      ProductCreateEvent.eventName,
-      ProductCreateEvent.fromProduct(product),
+      ProductCreateEvent.event,
+      new ProductCreateEvent(product),
     );
 
     return {
@@ -91,8 +91,8 @@ export class ProductService {
     );
 
     this.eventEmitter.emit(
-      ProductUpdateEvent.eventName,
-      ProductUpdateEvent.fromProduct(product, updateProductDto),
+      ProductUpdateEvent.event,
+      new ProductUpdateEvent(product, updateProductDto),
     );
 
     return { message: 'Product updated successfully', product };
@@ -106,8 +106,8 @@ export class ProductService {
     }
 
     this.eventEmitter.emit(
-      ProductDeleteEvent.eventName,
-      ProductDeleteEvent.fromProduct(product),
+      ProductDeleteEvent.event,
+      new ProductDeleteEvent(product),
     );
 
     return { message: 'Product deleted successfully', product };

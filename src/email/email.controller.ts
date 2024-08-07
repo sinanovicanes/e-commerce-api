@@ -11,7 +11,7 @@ import { EmailType } from './enums';
 export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
-  @OnEvent(UserRegisterEvent.eventName, { async: true })
+  @OnEvent(UserRegisterEvent.event, { async: true })
   async handleUserRegisterEvent(event: UserRegisterEvent) {
     await this.emailService.sendMail(EmailType.WELCOME, {
       to: event.user.email,
@@ -22,7 +22,7 @@ export class EmailController {
     });
   }
 
-  @OnEvent(UserResetPasswordRequestEvent.eventName)
+  @OnEvent(UserResetPasswordRequestEvent.event)
   async handleUserResetPasswordEvent(event: UserResetPasswordRequestEvent) {
     await this.emailService.sendMail(EmailType.RESET_PASSWORD, {
       to: event.user.email,

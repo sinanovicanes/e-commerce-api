@@ -57,8 +57,8 @@ export class ProductReviewService {
     await review.save();
 
     this.eventEmitter.emit(
-      ProductReviewCreateEvent.eventName,
-      ProductReviewCreateEvent.fromReview(review),
+      ProductReviewCreateEvent.event,
+      new ProductReviewCreateEvent(review),
     );
 
     return {
@@ -75,8 +75,8 @@ export class ProductReviewService {
     }
 
     this.eventEmitter.emit(
-      ProductReviewDeleteEvent.eventName,
-      ProductReviewDeleteEvent.fromReview(review),
+      ProductReviewDeleteEvent.event,
+      new ProductReviewDeleteEvent(review),
     );
 
     return {

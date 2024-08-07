@@ -50,8 +50,8 @@ export class AuthService {
     }
 
     this.eventEmitter.emit(
-      UserRegisterEvent.eventName,
-      UserRegisterEvent.fromUser(user),
+      UserRegisterEvent.event,
+      new UserRegisterEvent(user),
     );
 
     return this.generateUserTokens(user);
@@ -99,8 +99,8 @@ export class AuthService {
     this.clearUserTokensFromCookies(res);
 
     this.eventEmitter.emit(
-      UserSignedOutEvent.eventName,
-      UserSignedOutEvent.fromUser(user),
+      UserSignedOutEvent.event,
+      new UserSignedOutEvent(user),
     );
 
     return { message: 'User has been signed out' };
@@ -271,7 +271,7 @@ export class AuthService {
     const resetToken = await this.generateResetToken(user);
 
     this.eventEmitter.emit(
-      UserResetPasswordRequestEvent.eventName,
+      UserResetPasswordRequestEvent.event,
       new UserResetPasswordRequestEvent(user, resetToken),
     );
 
@@ -292,8 +292,8 @@ export class AuthService {
     await this.resetTokenModel.deleteOne({ user: user._id });
 
     this.eventEmitter.emit(
-      UserResetPasswordEvent.eventName,
-      UserResetPasswordEvent.fromUser(user),
+      UserResetPasswordEvent.event,
+      new UserResetPasswordEvent(user),
     );
 
     return { message: 'Password has been reset' };

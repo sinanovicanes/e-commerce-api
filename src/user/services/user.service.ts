@@ -50,7 +50,7 @@ export class UserService {
     }
 
     this.eventEmitter.emit(
-      UserUpdateEvent.eventName,
+      UserUpdateEvent.event,
       new UserUpdateEvent(user, updateUserDto),
     );
 

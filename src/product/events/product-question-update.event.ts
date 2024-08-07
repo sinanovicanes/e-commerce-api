@@ -1,11 +1,7 @@
 import { ProductQuestion } from '../schemas';
 
 export class ProductQuestionUpdateEvent {
+  static event = 'product.question.update';
+
   constructor(public readonly question: ProductQuestion) {}
-
-  static eventName = 'product.question.update';
-
-  static fromQuestion(question: ProductQuestion) {
-    return new ProductQuestionUpdateEvent(question);
-  }
 }

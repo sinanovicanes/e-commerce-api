@@ -65,7 +65,7 @@ export class ShoppingCartService {
     const total = await cart.getTotalPrice();
 
     this.eventEmitter.emit(
-      CartAddEvent.eventName,
+      CartAddEvent.event,
       new CartAddEvent(cart, productId, quantity),
     );
 
@@ -92,7 +92,7 @@ export class ShoppingCartService {
     const total = await cart.getTotalPrice();
 
     this.eventEmitter.emit(
-      CartRemoveEvent.eventName,
+      CartRemoveEvent.event,
       new CartRemoveEvent(cart, productId.toString()),
     );
 
@@ -125,7 +125,7 @@ export class ShoppingCartService {
     const total = await cart.getTotalPrice();
 
     this.eventEmitter.emit(
-      CartUpdateQuantityEvent.eventName,
+      CartUpdateQuantityEvent.event,
       new CartUpdateQuantityEvent(cart, productId, quantity),
     );
 
@@ -144,7 +144,7 @@ export class ShoppingCartService {
       throw new NotFoundException('Shopping cart not found');
     }
 
-    this.eventEmitter.emit(CartClearEvent.eventName, new CartClearEvent(cart));
+    this.eventEmitter.emit(CartClearEvent.event, new CartClearEvent(cart));
 
     return { message: 'Shopping cart cleared', cart };
   }

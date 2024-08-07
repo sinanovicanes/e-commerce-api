@@ -44,8 +44,8 @@ export class MerchantService {
     }
 
     this.eventEmitter.emit(
-      MerchantCreateEvent.eventName,
-      MerchantCreateEvent.fromMerchant(merchant),
+      MerchantCreateEvent.event,
+      new MerchantCreateEvent(merchant),
     );
 
     return {
@@ -76,8 +76,8 @@ export class MerchantService {
     );
 
     this.eventEmitter.emit(
-      MerchantUpdateEvent.eventName,
-      MerchantUpdateEvent.fromMerchant(merchant, updateMerchantDto),
+      MerchantUpdateEvent.event,
+      new MerchantUpdateEvent(merchant, updateMerchantDto),
     );
 
     return merchant;

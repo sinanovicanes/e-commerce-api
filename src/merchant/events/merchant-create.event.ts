@@ -1,11 +1,7 @@
 import { Merchant } from '../schemas';
 
 export class MerchantCreateEvent {
+  static event = 'merchant.create';
+
   constructor(public readonly merchant: Merchant) {}
-
-  static eventName = 'merchant.create';
-
-  static fromMerchant(merchant: Merchant) {
-    return new MerchantCreateEvent(merchant);
-  }
 }
