@@ -1,15 +1,15 @@
-import { Controller } from '@nestjs/common';
-import { EmailService } from './email.service';
-import { OnEvent } from '@nestjs/event-emitter';
 import {
   UserRegisterEvent,
   UserResetPasswordEvent,
   UserResetPasswordRequestEvent,
 } from '@/auth/events';
+import { Injectable } from '@nestjs/common';
+import { OnEvent } from '@nestjs/event-emitter';
+import { EmailService } from './email.service';
 import { EmailType } from './enums';
 
-@Controller('email')
-export class EmailController {
+@Injectable()
+export class EmailEventHandlers {
   constructor(private readonly emailService: EmailService) {}
 
   @OnEvent(UserRegisterEvent.event, { async: true })

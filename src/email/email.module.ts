@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { EmailService } from './email.service';
-import { EmailController } from './email.controller';
+import { EmailEventHandlers } from './email.event-handlers';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -32,7 +32,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
     }),
   ],
-  controllers: [EmailController],
-  providers: [EmailService],
+  controllers: [],
+  providers: [EmailService, EmailEventHandlers],
 })
 export class EmailModule {}
