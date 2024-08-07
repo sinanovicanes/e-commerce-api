@@ -84,17 +84,18 @@ export class ProductService {
       );
     }
 
-    // TODO: Refactor this to use findByIdAndUpdate
-    const product = await this.getProductById(productId);
-
-    await product.updateOne(updateProductDto);
+    const product = await this.productModel.findByIdAndUpdate(
+      productId,
+      updateProductDto,
+      { new: true },
+    );
 
     this.eventEmitter.emit(
       ProductUpdateEvent.eventName,
       ProductUpdateEvent.fromProduct(product, updateProductDto),
     );
 
-    return { message: 'Product updated successfully' };
+    return { message: 'Product updated successfully', product };
   }
 
   async deleteProduct(productId: Types.ObjectId) {
