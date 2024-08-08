@@ -27,6 +27,20 @@ export class ProductService {
     return !!product;
   }
 
+  async findProductById(productId: Types.ObjectId): Promise<Product | null> {
+    return this.productModel.findById(productId);
+  }
+
+  async getProductById(productId: Types.ObjectId): Promise<Product> {
+    const product = await this.findProductById(productId);
+
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    return product;
+  }
+
   async findPublicProductById(
     productId: Types.ObjectId,
     populateMerchant = false,
@@ -39,16 +53,6 @@ export class ProductService {
 
     if (populateMerchant) {
       await product.populate('merchant', ['name']);
-    }
-
-    return product;
-  }
-
-  async getProductById(productId: Types.ObjectId): Promise<Product> {
-    const product = await this.productModel.findById(productId);
-
-    if (!product) {
-      throw new NotFoundException('Product not found');
     }
 
     return product;

@@ -46,7 +46,7 @@ export class ProductReviewAccessGuard implements CanActivate {
       return false;
     }
 
-    const review = await this.productReviewService.findReviewById(reviewId);
+    const review = await this.productReviewService.getReviewById(reviewId);
 
     if (!review) {
       return false;

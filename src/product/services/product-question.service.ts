@@ -23,7 +23,23 @@ export class ProductQuestionService {
   @InjectModel(ProductQuestion.name)
   private readonly productQuestionModel: Model<ProductQuestion>;
 
-  async getQuestions(productId: Types.ObjectId) {
+  async findQuestionById(
+    questionId: Types.ObjectId,
+  ): Promise<ProductQuestion | null> {
+    return this.productQuestionModel.findById(questionId);
+  }
+
+  async getQuestionById(questionId: Types.ObjectId): Promise<ProductQuestion> {
+    const question = await this.findQuestionById(questionId);
+
+    if (!question) {
+      throw new NotFoundException('Product question not found');
+    }
+
+    return question;
+  }
+
+  async getProductQuestions(productId: Types.ObjectId) {
     const productQuestions = await this.productQuestionModel
       .find({
         product: productId,
@@ -34,16 +50,6 @@ export class ProductQuestionService {
       .populate('user', 'name avatar');
 
     return productQuestions;
-  }
-
-  async findQuestionById(productId: Types.ObjectId) {
-    const product = await this.productQuestionModel.findById(productId);
-
-    if (!product) {
-      throw new NotFoundException('Product question not found');
-    }
-
-    return product;
   }
 
   async createQuestion(
@@ -76,7 +82,7 @@ export class ProductQuestionService {
     answerProductQuestionDto: AnswerProductQuestionDto,
   ) {
     const { answer } = answerProductQuestionDto;
-    const productQuestion = await this.findQuestionById(questionId);
+    const productQuestion = await this.getQuestionById(questionId);
 
     if (productQuestion.answer) {
       throw new ConflictException('Question already answered');

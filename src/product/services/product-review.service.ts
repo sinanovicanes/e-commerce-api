@@ -14,7 +14,23 @@ export class ProductReviewService {
   @InjectModel(ProductReview.name)
   private readonly productReviewModel: Model<ProductReview>;
 
-  async getReviews(productId: Types.ObjectId) {
+  async findReviewById(
+    reviewId: Types.ObjectId,
+  ): Promise<ProductReview | null> {
+    return this.productReviewModel.findById(reviewId);
+  }
+
+  async getReviewById(reviewId: Types.ObjectId): Promise<ProductReview> {
+    const review = await this.findReviewById(reviewId);
+
+    if (!review) {
+      throw new NotFoundException('Product review not found');
+    }
+
+    return review;
+  }
+
+  async getProductReviews(productId: Types.ObjectId) {
     const reviews = await this.productReviewModel
       .find({
         product: productId,
@@ -31,16 +47,6 @@ export class ProductReviewService {
         avatar: review.user.avatar,
       },
     }));
-  }
-
-  async findReviewById(productId: Types.ObjectId) {
-    const product = await this.productReviewModel.findById(productId);
-
-    if (!product) {
-      throw new NotFoundException('Product review not found');
-    }
-
-    return product;
   }
 
   async createReview(

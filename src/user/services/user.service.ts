@@ -18,11 +18,14 @@ import { User } from '../schemas';
 export class UserService {
   @Inject() private readonly encryptionService: EncryptionService;
   @InjectModel(User.name) private readonly userModel: Model<User>;
-  @Inject(CACHE_MANAGER) private readonly cacheManager: Cache;
   @Inject() private readonly eventEmitter: EventEmitter2;
 
-  async findUserByEmail(email: string): Promise<User> {
-    const user = await this.userModel.findOne({ email });
+  async findUserById(userId: string): Promise<User | null> {
+    return this.userModel.findById(userId);
+  }
+
+  async getUserById(userId: string): Promise<User> {
+    const user = await this.findUserById(userId);
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -31,16 +34,15 @@ export class UserService {
     return user;
   }
 
-  async getUserByIdUsingCache(userId: string): Promise<User | undefined> {
-    const cacheKey = `user:${userId}`;
-    const user = await this.cacheManager.get<User>(cacheKey);
+  async findUserByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email });
+  }
 
-    if (user === undefined) {
-      const userDocument = await this.userModel.findById(userId);
+  async getUserByEmail(email: string): Promise<User> {
+    const user = await this.findUserByEmail(email);
 
-      await this.cacheManager.set(cacheKey, userDocument ?? false, 5000);
-
-      return userDocument;
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
     return user;
@@ -71,20 +73,5 @@ export class UserService {
     );
 
     return { message: 'User updated successfully' };
-  }
-
-  async getUserMerchantsCount(userId: string) {
-    return this.userModel.aggregate([
-      { $match: { _id: userId } },
-      {
-        $lookup: {
-          from: 'merchants',
-          localField: '_id',
-          foreignField: 'owner',
-          as: 'merchants',
-        },
-      },
-      { $project: { merchantsCount: { $size: '$merchants' } } },
-    ]);
   }
 }

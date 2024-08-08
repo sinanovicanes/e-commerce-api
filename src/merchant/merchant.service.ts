@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -18,11 +19,15 @@ export class MerchantService {
   @Inject() private readonly eventEmitter: EventEmitter2;
   @InjectModel(Merchant.name) private readonly merchantModel: Model<Merchant>;
 
-  async getMerchantById(merchantId: Types.ObjectId) {
-    const merchant = await this.merchantModel.findById(merchantId);
+  async findMerchantById(merchantId: Types.ObjectId): Promise<Merchant | null> {
+    return this.merchantModel.findById(merchantId);
+  }
+
+  async getMerchantById(merchantId: Types.ObjectId): Promise<Merchant> {
+    const merchant = await this.findMerchantById(merchantId);
 
     if (!merchant) {
-      throw new HttpException('Merchant not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('Merchant not found');
     }
 
     return merchant;

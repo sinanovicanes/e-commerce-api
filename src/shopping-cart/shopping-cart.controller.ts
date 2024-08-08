@@ -21,7 +21,7 @@ export class ShoppingCartController {
 
   @Get()
   async getShoppingCart(@GetUser('_id') userId: Types.ObjectId) {
-    return this.shoppingCartService.getCart(userId);
+    return this.shoppingCartService.getUserCart(userId);
   }
 
   @Delete()

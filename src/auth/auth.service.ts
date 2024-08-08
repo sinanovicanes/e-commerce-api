@@ -258,7 +258,7 @@ export class AuthService {
 
   async forgotPassword(resetPasswordRequestDto: ResetPasswordRequestDto) {
     const { email } = resetPasswordRequestDto;
-    const user = await this.userService.findUserByEmail(email);
+    const user = await this.userService.getUserByEmail(email);
 
     const resetToken = await this.generateResetToken(user);
 

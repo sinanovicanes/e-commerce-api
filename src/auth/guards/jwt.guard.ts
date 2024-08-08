@@ -32,7 +32,7 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const payload: JwtPayload = this.jwtService.verify(accessToken);
-      const user = await this.userService.getUserByIdUsingCache(payload.sub);
+      const user = await this.userService.findUserById(payload.sub);
 
       if (!user) {
         return false;
@@ -60,7 +60,7 @@ export class JwtAuthGuard implements CanActivate {
       const payload: JwtPayload = this.jwtService.verify(refreshToken, {
         secret: this.configService.get('JWT_REFRESH_SECRET'),
       });
-      const user = await this.userService.getUserByIdUsingCache(payload.sub);
+      const user = await this.userService.findUserById(payload.sub);
 
       if (!user) {
         return false;

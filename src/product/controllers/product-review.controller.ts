@@ -24,7 +24,7 @@ export class ProductReviewController {
   @Public()
   @Get()
   getReview(@Param('productId', ParseObjectIdPipe) productId: Types.ObjectId) {
-    return this.productReviewService.getReviews(productId);
+    return this.productReviewService.getProductReviews(productId);
   }
 
   @Post()

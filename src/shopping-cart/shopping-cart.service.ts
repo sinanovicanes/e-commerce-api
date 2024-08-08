@@ -19,8 +19,12 @@ export class ShoppingCartService {
   @InjectModel(ShoppingCart.name)
   private readonly shoppingCartModel: Model<ShoppingCart>;
 
-  async findCart(userId: Types.ObjectId) {
-    const cart = await this.shoppingCartModel.findOne({ user: userId });
+  async findCartByUserId(userId: Types.ObjectId): Promise<ShoppingCart | null> {
+    return this.shoppingCartModel.findById(userId);
+  }
+
+  async getCartByUserId(userId: Types.ObjectId): Promise<ShoppingCart> {
+    const cart = await this.findCartByUserId(userId);
 
     if (!cart) {
       throw new NotFoundException('Shopping cart not found');
@@ -29,8 +33,8 @@ export class ShoppingCartService {
     return cart;
   }
 
-  async getCart(userId: Types.ObjectId) {
-    const cart = await this.findCart(userId);
+  async getUserCart(userId: Types.ObjectId) {
+    const cart = await this.getCartByUserId(userId);
     const total = await cart.getTotalPrice();
 
     return {

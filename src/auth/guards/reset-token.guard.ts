@@ -30,7 +30,7 @@ export class ResetTokenGuard implements CanActivate {
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest();
     const [email, token] = this.extractEmailAndTokenFromRequest(req);
-    const user = await this.userService.findUserByEmail(email);
+    const user = await this.userService.getUserByEmail(email);
     const isValidToken = await this.authService.validateResetToken(user, token);
 
     if (!isValidToken) {

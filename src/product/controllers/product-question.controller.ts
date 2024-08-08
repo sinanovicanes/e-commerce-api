@@ -35,7 +35,7 @@ export class ProductQuestionController {
   getQuestion(
     @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
   ) {
-    return this.productQuestionService.getQuestions(productId);
+    return this.productQuestionService.getProductQuestions(productId);
   }
 
   @Post()

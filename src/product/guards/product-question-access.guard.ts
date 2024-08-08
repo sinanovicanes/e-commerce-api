@@ -47,7 +47,7 @@ export class ProductQuestionAccessGuard implements CanActivate {
     }
 
     const question =
-      await this.productQuestionService.findQuestionById(questionId);
+      await this.productQuestionService.getQuestionById(questionId);
 
     if (!question) {
       return false;
