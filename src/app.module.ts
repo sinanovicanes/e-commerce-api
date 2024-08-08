@@ -1,6 +1,6 @@
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -14,6 +14,7 @@ import { ProductModule } from './product/product.module';
 import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
+import { redisStore } from 'cache-manager-redis-yet';
 
 @Module({
   imports: [
@@ -21,10 +22,20 @@ import { EmailModule } from './email/email.module';
       isGlobal: true,
       validate,
     }),
-    CacheModule.register({
+    CacheModule.registerAsync({
       isGlobal: true,
-      ttl: 15,
-      max: 10,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        ttl: 15,
+        max: 10,
+        store: await redisStore({
+          socket: {
+            host: configService.get<string>('REDIS_HOST'),
+            port: configService.get<number>('REDIS_PORT'),
+          },
+        }),
+      }),
     }),
     EventEmitterModule.forRoot(),
     JwtModule.register({

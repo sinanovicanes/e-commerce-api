@@ -1,6 +1,7 @@
 import { plainToInstance } from 'class-transformer';
 import {
   IsEnum,
+  IsInt,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -25,6 +26,15 @@ class EnvironmentVariables {
   @Min(0)
   @Max(65535)
   PORT: number = 3000;
+
+  @IsString()
+  @IsNotEmpty()
+  REDIS_HOST: string =
+    this.NODE_ENV === Environment.Development ? 'localhost' : undefined;
+
+  @IsNumber()
+  @IsInt()
+  REDIS_PORT: number = 6379;
 
   @IsString()
   @IsNotEmpty()

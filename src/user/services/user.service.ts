@@ -38,7 +38,7 @@ export class UserService {
     if (user === undefined) {
       const userDocument = await this.userModel.findById(userId);
 
-      await this.cacheManager.set(cacheKey, userDocument ?? false);
+      await this.cacheManager.set(cacheKey, userDocument ?? false, 5000);
 
       return userDocument;
     }
