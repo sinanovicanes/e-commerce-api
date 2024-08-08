@@ -45,7 +45,7 @@ export class AuthController {
 
   @Public()
   @UseGuards(ResetTokenGuard)
-  @Post('reset-password/:token')
+  @Post('reset-password')
   async resetPassword(
     @GetUser() user: User,
     @Body() resetPasswordDto: ResetPasswordDto,

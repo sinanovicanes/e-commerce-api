@@ -1,51 +1,43 @@
 import { UserService } from '@/user/services';
-import { CanActivate, ExecutionContext, Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
+import {
+  BadRequestException,
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { isEmail } from 'class-validator';
 import { Request } from 'express';
 import { AuthService } from '../auth.service';
 
+@Injectable()
 export class ResetTokenGuard implements CanActivate {
   @Inject() private readonly authService: AuthService;
   @Inject() private readonly userService: UserService;
-  @Inject() private readonly jwtService: JwtService;
-  @Inject() private readonly configService: ConfigService;
 
-  private extractTokenFromRequest(req: Request): string {
-    return req.params.token;
+  private extractEmailAndTokenFromRequest(req: Request): [string, string] {
+    const email = req.query.email as string;
+    const token = req.query.token as string;
+
+    if (!email || !token || !isEmail(email) || typeof token !== 'string') {
+      throw new BadRequestException('Invalid request');
+    }
+
+    return [email, token];
   }
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
     const req = ctx.switchToHttp().getRequest();
-    const token = this.extractTokenFromRequest(req);
+    const [email, token] = this.extractEmailAndTokenFromRequest(req);
+    const user = await this.userService.findUserByEmail(email);
+    const isValidToken = await this.authService.validateResetToken(user, token);
 
-    if (!token) {
-      return false;
+    if (!isValidToken) {
+      throw new UnauthorizedException('Invalid token');
     }
 
-    try {
-      const payload = this.jwtService.verify(token, {
-        secret: this.configService.get('JWT_RESET_SECRET'),
-      });
-      const user = await this.userService.getUserByIdUsingCache(payload.sub);
-
-      if (!user) {
-        return false;
-      }
-
-      const isValidToken = await this.authService.validateResetToken(
-        user,
-        token,
-      );
-
-      if (!isValidToken) {
-        return false;
-      }
-
-      req.user = user;
-    } catch {
-      return false;
-    }
+    req.user = user;
 
     return true;
   }

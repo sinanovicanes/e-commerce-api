@@ -7,4 +7,13 @@ export class UserResetPasswordRequestEvent {
     public readonly user: User,
     public resetToken: string,
   ) {}
+
+  get email() {
+    return this.user.email;
+  }
+
+  // This should be the frontend URL with the reset token
+  get resetLink() {
+    return `http://localhost:3000/reset-password?token=${this.resetToken}&email=${this.email}`;
+  }
 }

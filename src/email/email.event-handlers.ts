@@ -32,8 +32,7 @@ export class EmailEventHandlers {
       subject: 'Reset your password',
       context: {
         name: event.user.name,
-        // This should be the frontend URL with the reset token
-        resetLink: `http://localhost:3000/reset-password/${event.resetToken}`,
+        resetLink: event.resetLink,
       },
     });
   }

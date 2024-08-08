@@ -1,12 +1,18 @@
 import { EncryptionService } from '@/encryption/encryption.service';
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from '../dtos';
-import { User } from '../schemas';
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UserUpdateEvent } from '../events';
+import { User } from '../schemas';
 
 @Injectable()
 export class UserService {
@@ -14,6 +20,16 @@ export class UserService {
   @InjectModel(User.name) private readonly userModel: Model<User>;
   @Inject(CACHE_MANAGER) private readonly cacheManager: Cache;
   @Inject() private readonly eventEmitter: EventEmitter2;
+
+  async findUserByEmail(email: string): Promise<User> {
+    const user = await this.userModel.findOne({ email });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
 
   async getUserByIdUsingCache(userId: string): Promise<User | undefined> {
     const cacheKey = `user:${userId}`;

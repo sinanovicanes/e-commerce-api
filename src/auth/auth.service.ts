@@ -3,6 +3,7 @@ import { User } from '@/user/schemas/User';
 import { adjustDate, minutes, weeks } from '@/utils/date';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Response } from 'express';
@@ -14,17 +15,18 @@ import {
   SignUpDto,
 } from './dtos';
 import { CookieFields } from './enums';
-import { RefreshToken, ResetToken } from './schemas';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import {
   UserRegisterEvent,
-  UserSignedOutEvent,
   UserResetPasswordEvent,
   UserResetPasswordRequestEvent,
+  UserSignedOutEvent,
 } from './events';
+import { RefreshToken, ResetToken } from './schemas';
+import { UserService } from '@/user/services';
 
 @Injectable()
 export class AuthService {
+  @Inject() private readonly userService: UserService;
   @Inject() private readonly encryptionService: EncryptionService;
   @Inject() private readonly jwtService: JwtService;
   @Inject() private readonly configService: ConfigService;
@@ -210,18 +212,9 @@ export class AuthService {
   }
 
   async generateResetToken(user: User) {
-    const resetToken = this.jwtService.sign(
-      {
-        sub: user._id,
-      },
-      {
-        secret: this.configService.get('JWT_RESET_SECRET'),
-        expiresIn: this.configService.get('JWT_RESET_EXPIRATION'),
-      },
-    );
-
+    const resetToken = await this.encryptionService.generateUUID();
     const token = await this.encryptionService.hash(resetToken);
-    const expiresAt = adjustDate({ minutes: 30 });
+    const expiresAt = adjustDate({ minutes: 15 });
 
     await this.resetTokenModel.replaceOne(
       {
@@ -240,7 +233,10 @@ export class AuthService {
     return resetToken;
   }
 
-  async validateResetToken(target: User | Types.ObjectId, resetToken: string) {
+  async validateResetToken(
+    target: User | Types.ObjectId,
+    resetToken: string,
+  ): Promise<boolean> {
     const user = target instanceof Types.ObjectId ? target : target._id;
     const resetTokenDoc = await this.resetTokenModel.findOne({ user });
 
@@ -262,11 +258,7 @@ export class AuthService {
 
   async forgotPassword(resetPasswordRequestDto: ResetPasswordRequestDto) {
     const { email } = resetPasswordRequestDto;
-    const user = await this.userModel.findOne({ email });
-
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
+    const user = await this.userService.findUserByEmail(email);
 
     const resetToken = await this.generateResetToken(user);
 
