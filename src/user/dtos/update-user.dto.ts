@@ -1,11 +1,6 @@
-import { IsImageUrl, IsValidPassword } from '@/utils/validators/';
-import { IsOptional } from 'class-validator';
+import { PartialType, PickType } from '@nestjs/mapped-types';
+import { CreateUserDto } from './create-user.dto';
 
-export class UpdateUserDto {
-  @IsValidPassword()
-  @IsOptional()
-  password: string;
-  @IsImageUrl()
-  @IsOptional()
-  avatar: string;
-}
+export class UpdateUserDto extends PartialType(
+  PickType(CreateUserDto, ['avatar'] as const),
+) {}

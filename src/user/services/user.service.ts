@@ -1,5 +1,4 @@
 import { EncryptionService } from '@/encryption/encryption.service';
-import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager';
 import {
   HttpException,
   HttpStatus,
@@ -54,17 +53,12 @@ export class UserService {
     }
 
     const id = target instanceof User ? target._id : target;
-
-    if (updateUserDto.password) {
-      updateUserDto.password = await this.encryptionService.hash(
-        updateUserDto.password,
-      );
-    }
-
-    const user = await this.userModel.findByIdAndUpdate(id, updateUserDto);
+    const user = await this.userModel.findByIdAndUpdate(id, updateUserDto, {
+      new: true,
+    });
 
     if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('User not found');
     }
 
     this.eventEmitter.emit(
@@ -72,6 +66,6 @@ export class UserService {
       new UserUpdateEvent(user, updateUserDto),
     );
 
-    return { message: 'User updated successfully' };
+    return { message: 'User updated successfully', user };
   }
 }

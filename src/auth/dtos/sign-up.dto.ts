@@ -1,21 +1,3 @@
-import { IsImageUrl, IsValidPassword } from '@/utils/validators';
-import { IsEmail, IsOptional, IsString, Length } from 'class-validator';
+import { CreateUserDto } from '@/user/dtos';
 
-export class SignUpDto {
-  @IsString()
-  @Length(3, 32)
-  username: string;
-  @IsString()
-  @Length(3, 255)
-  name: string;
-  @IsString()
-  @Length(3, 255)
-  lastname: string;
-  @IsEmail()
-  email: string;
-  @IsValidPassword()
-  password: string;
-  @IsOptional()
-  @IsImageUrl()
-  avatar: string;
-}
+export class SignUpDto extends CreateUserDto {}
