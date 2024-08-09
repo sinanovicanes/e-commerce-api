@@ -9,7 +9,7 @@ import {
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UpdateUserDto } from '../dtos';
+import { CreateUserDto, UpdateUserDto } from '../dtos';
 import { UserUpdateEvent } from '../events';
 import { User } from '../schemas';
 
@@ -45,6 +45,26 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async createUser(createUserDto: CreateUserDto) {
+    const { password } = createUserDto;
+    const hashedPassword = await this.encryptionService.hash(password);
+    const user = new this.userModel({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
+    try {
+      await user.save();
+    } catch {
+      throw new HttpException(
+        'This username or email is already exist.',
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    return { message: 'User created successfully', user };
   }
 
   async updateUser(target: User | User['_id'], updateUserDto: UpdateUserDto) {

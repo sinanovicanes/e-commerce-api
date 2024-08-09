@@ -38,25 +38,14 @@ export class AuthService {
   private readonly resetTokenModel: Model<ResetToken>;
 
   async signUp(signUpDto: SignUpDto) {
-    const { password } = signUpDto;
-    const hashedPassword = await this.encryptionService.hash(password);
-    const user = new this.userModel({ ...signUpDto, password: hashedPassword });
-
-    try {
-      await user.save();
-    } catch {
-      throw new HttpException(
-        'This username or email is already exist.',
-        HttpStatus.CONFLICT,
-      );
-    }
+    const { message, user } = await this.userService.createUser(signUpDto);
 
     this.eventEmitter.emit(
       UserRegisterEvent.event,
       new UserRegisterEvent(user),
     );
 
-    return this.generateUserTokens(user);
+    return { message };
   }
 
   async signIn(signInDto: SignInDto) {
