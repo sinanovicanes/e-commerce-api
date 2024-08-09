@@ -1,21 +1,25 @@
+import { Public } from '@/auth/decorators';
+import { User } from '@/user/schemas';
+import { GetUser } from '@/utils/decorators';
+import { ParseObjectIdPipe } from '@/utils/pipes';
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
-import { MerchantService } from './merchant.service';
-import { Public } from '@/auth/decorators';
-import { CreateMerchantDto, UpdateMerchantDto } from './dtos';
-import { GetUser } from '@/utils/decorators';
-import { User } from '@/user/schemas';
-import { ParseObjectIdPipe } from '@/utils/pipes';
-import { MerchantAccessGuard } from './guards/merchant-access.guard';
+import { Request } from 'express';
 import { Types } from 'mongoose';
 import { GetMerchant } from './decorators';
+import { CreateMerchantDto, UpdateMerchantDto } from './dtos';
+import { MerchantOwnerGuard } from './guards';
+import { MerchantAccessGuard } from './guards/merchant-access.guard';
+import { MerchantService } from './merchant.service';
 
 @Controller('merchants')
 export class MerchantController {
@@ -42,5 +46,29 @@ export class MerchantController {
     @Body() updateMerchantDto: UpdateMerchantDto,
   ) {
     return this.merchantService.updateMerchant(id, updateMerchantDto);
+  }
+
+  @UseGuards(MerchantOwnerGuard)
+  @Get('users')
+  getUsers(@GetMerchant('_id') id: Types.ObjectId) {
+    return this.merchantService.getUsersByMerchantId(id);
+  }
+
+  @UseGuards(MerchantOwnerGuard)
+  @Post('users')
+  addUser(
+    @GetMerchant('_id') id: Types.ObjectId,
+    @Req() req: Request & { targetUser: User },
+  ) {
+    return this.merchantService.addUserToMerchant(id, req.targetUser as User);
+  }
+
+  @UseGuards(MerchantOwnerGuard)
+  @Delete('users/:userId')
+  updateUserRole(
+    @GetMerchant('_id') id: Types.ObjectId,
+    @Param('userId', ParseObjectIdPipe) userId: Types.ObjectId,
+  ) {
+    return this.merchantService.removeUserFromMerchant(id, userId);
   }
 }

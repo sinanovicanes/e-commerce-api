@@ -87,4 +87,42 @@ export class MerchantService {
 
     return merchant;
   }
+
+  async getUsersByMerchantId(merchantId: Types.ObjectId) {
+    const merchant = await this.getMerchantById(merchantId);
+
+    await merchant.populate('users', 'username name lastname email avatar');
+
+    return merchant.users;
+  }
+
+  async addUserToMerchant(target: Merchant | Types.ObjectId, user: User) {
+    const merchantId = target instanceof Merchant ? target._id : target;
+    const merchant = await this.merchantModel.findByIdAndUpdate(
+      merchantId,
+      {
+        $addToSet: { users: user._id },
+      },
+      { new: true },
+    );
+
+    return { message: 'User added successfully', merchant };
+  }
+
+  async removeUserFromMerchant(
+    target: Merchant | Types.ObjectId,
+    targetUser: User | Types.ObjectId,
+  ) {
+    const merchantId = target instanceof Merchant ? target._id : target;
+    const userId = targetUser instanceof User ? targetUser._id : targetUser;
+    const merchant = await this.merchantModel.findByIdAndUpdate(
+      merchantId,
+      {
+        $pull: { users: userId },
+      },
+      { new: true },
+    );
+
+    return { message: 'User removed successfully', merchant };
+  }
 }
