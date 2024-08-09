@@ -1,4 +1,3 @@
-import { User } from '@/user/schemas';
 import {
   CanActivate,
   ExecutionContext,
@@ -12,7 +11,7 @@ import { MerchantService } from '../merchant.service';
 import { Merchant } from '../schemas';
 
 @Injectable()
-export class MerchantAccessGuard implements CanActivate {
+export class MerchantOwnerGuard implements CanActivate {
   @Inject() private readonly merchantService: MerchantService;
 
   private extractMerchantIdFromRequest(req: Request): Types.ObjectId | null {
@@ -25,19 +24,6 @@ export class MerchantAccessGuard implements CanActivate {
 
   private isOwner(merchant: Merchant, userId: Types.ObjectId): boolean {
     return merchant.ownerId === userId;
-  }
-
-  private isMember(merchant: Merchant, userId: Types.ObjectId): boolean {
-    const isOwner = this.isOwner(merchant, userId);
-
-    if (isOwner) {
-      return true;
-    }
-
-    return merchant.users.some((user: User | Types.ObjectId) => {
-      const id = user instanceof User ? user._id : user.toString();
-      return id == userId.toString();
-    });
   }
 
   async canActivate(ctx: ExecutionContext) {
@@ -60,7 +46,9 @@ export class MerchantAccessGuard implements CanActivate {
       return false;
     }
 
-    if (!this.isMember(merchant, user._id)) {
+    const isOwner = this.isOwner(merchant, user._id);
+
+    if (!isOwner) {
       return false;
     }
 

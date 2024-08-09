@@ -18,10 +18,16 @@ export class Merchant extends Document {
   logo?: string;
 
   @Prop({ type: Types.ObjectId, ref: User.name, required: true })
-  owner: User;
+  owner: User | Types.ObjectId;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: User.name, default: [] }] })
-  users: User[];
+  users: User[] | Types.ObjectId[];
+
+  get ownerId(): Types.ObjectId {
+    return this.owner instanceof User
+      ? (this.owner._id as Types.ObjectId)
+      : this.owner;
+  }
 }
 
 export const MerchantSchema = SchemaFactory.createForClass(Merchant);
@@ -29,3 +35,4 @@ export const MerchantDefinition = {
   name: Merchant.name,
   schema: MerchantSchema,
 };
+MerchantSchema.loadClass(Merchant);
