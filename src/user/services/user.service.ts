@@ -68,4 +68,16 @@ export class UserService {
 
     return { message: 'User updated successfully', user };
   }
+
+  async updateUserPassword(target: User | User['_id'], password: string) {
+    const hashedPassword = await this.encryptionService.hash(password);
+    const id = target instanceof User ? target._id : target;
+    const user = await this.userModel.findByIdAndUpdate(
+      id,
+      { password: hashedPassword },
+      { new: true },
+    );
+
+    return { message: 'Password updated successfully', user };
+  }
 }

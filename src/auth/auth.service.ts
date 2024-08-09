@@ -272,15 +272,8 @@ export class AuthService {
 
   async resetPassword(user: User, resetPasswordDto: ResetPasswordDto) {
     const { password } = resetPasswordDto;
-    const hashedPassword = await this.encryptionService.hash(password);
 
-    await this.userModel.updateOne(
-      { _id: user._id },
-      {
-        password: hashedPassword,
-      },
-    );
-
+    await this.userService.updateUserPassword(user, password);
     await this.resetTokenModel.deleteOne({ user: user._id });
 
     this.eventEmitter.emit(
