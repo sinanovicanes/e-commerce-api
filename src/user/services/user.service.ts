@@ -67,6 +67,18 @@ export class UserService {
     return { message: 'User created successfully', user };
   }
 
+  async getOrCreateUser(createUserDto: CreateUserDto): Promise<User> {
+    const user = await this.findUserByEmail(createUserDto.email);
+
+    if (!!user) {
+      return user;
+    }
+
+    const { user: newUser } = await this.createUser(createUserDto);
+
+    return newUser;
+  }
+
   async updateUser(target: User | User['_id'], updateUserDto: UpdateUserDto) {
     if (Object.keys(updateUserDto).length === 0) {
       throw new HttpException('No data to update', HttpStatus.BAD_REQUEST);

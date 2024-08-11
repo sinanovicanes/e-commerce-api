@@ -6,7 +6,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards';
 import { RefreshTokenDefinition, ResetTokenDefinition } from './schemas';
-import { LocalStrategy } from './strategies';
+import { GoogleStrategy, LocalStrategy } from './strategies';
+import { GoogleAuthController } from './auth-google.controller';
 
 @Global()
 @Module({
@@ -17,10 +18,11 @@ import { LocalStrategy } from './strategies';
       ResetTokenDefinition,
     ]),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, GoogleAuthController],
   providers: [
     AuthService,
     LocalStrategy,
+    GoogleStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

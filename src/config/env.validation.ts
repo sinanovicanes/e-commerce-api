@@ -51,6 +51,12 @@ class EnvironmentVariables {
   JWT_REFRESH_EXPIRATION: string = '7d';
 
   @IsString()
+  GOOGLE_AUTH_CLIENT_ID: string;
+
+  @IsString()
+  GOOGLE_AUTH_CLIENT_SECRET: string;
+
+  @IsString()
   @IsNotEmpty()
   MONGO_URI: string;
 

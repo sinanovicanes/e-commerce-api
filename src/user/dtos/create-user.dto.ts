@@ -1,5 +1,6 @@
+import { AuthStrategies } from '@/auth/enums';
 import { IsImageUrl, IsValidPassword } from '@/utils/validators';
-import { IsEmail, IsOptional, IsString, Length } from 'class-validator';
+import { IsEmail, IsEnum, IsOptional, IsString, Length } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
@@ -18,4 +19,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsImageUrl()
   avatar: string;
+
+  @IsEnum(AuthStrategies)
+  @IsOptional()
+  strategy?: AuthStrategies;
 }

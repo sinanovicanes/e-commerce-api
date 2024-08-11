@@ -1,3 +1,4 @@
+import { AuthStrategies } from '@/auth/enums';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
@@ -17,6 +18,9 @@ export class User extends Document {
 
   @Prop({ required: true })
   password: string;
+
+  @Prop({ required: true, enum: AuthStrategies, default: AuthStrategies.LOCAL })
+  strategy: AuthStrategies;
 
   @Prop()
   avatar: string;
