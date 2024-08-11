@@ -46,10 +46,9 @@ export class ShoppingCart extends Document {
   }
 }
 
-export const ShoppingCartSchema = SchemaFactory.createForClass(ShoppingCart);
+export const ShoppingCartSchema =
+  SchemaFactory.createForClass(ShoppingCart).loadClass(ShoppingCart);
 export const ShoppingCartDefinition = {
   name: ShoppingCart.name,
   schema: ShoppingCartSchema,
 };
-
-ShoppingCartSchema.loadClass(ShoppingCart);

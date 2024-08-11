@@ -1,6 +1,8 @@
 import { ProductService } from '@/product/services';
+import { ShoppingCartService } from '@/shopping-cart/shopping-cart.service';
 import { User } from '@/user/schemas';
 import {
+  BadRequestException,
   Inject,
   Injectable,
   NotFoundException,
@@ -14,6 +16,7 @@ import { Order } from './schemas';
 @Injectable()
 export class OrderService {
   @Inject() private readonly productService: ProductService;
+  @Inject() private readonly shoppingCartService: ShoppingCartService;
   @InjectModel(Order.name) private readonly orderModel: Model<Order>;
 
   async findOrderById(orderId: string | Types.ObjectId): Promise<Order | null> {
@@ -45,7 +48,7 @@ export class OrderService {
 
     // Check if there are duplicate products
     if (new Set(productIds).size !== productIds.length) {
-      throw new UnprocessableEntityException('Duplicate products found');
+      throw new BadRequestException('Duplicate products found');
     }
 
     const productPrices =
@@ -69,6 +72,25 @@ export class OrderService {
     const order = new this.orderModel({ products, user: userId });
 
     order.save();
+
+    return order;
+  }
+
+  async createOrderFromCart(target: User | Types.ObjectId): Promise<Order> {
+    const userId =
+      target instanceof Types.ObjectId
+        ? target
+        : (target._id as Types.ObjectId);
+
+    const cart = await this.shoppingCartService.getCartByUserId(userId);
+    const order = await this.createOrder(userId, {
+      products: cart.products.map((product) => ({
+        product: (product.product as Types.ObjectId).toString(),
+        quantity: product.quantity,
+      })),
+    });
+
+    await cart.deleteOne();
 
     return order;
   }

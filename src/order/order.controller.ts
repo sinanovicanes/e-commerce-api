@@ -1,10 +1,10 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
-import { OrderService } from './order.service';
-import { GetUser } from '@/utils/decorators';
 import { User } from '@/user/schemas';
-import { CreateOrderDto } from './dtos';
+import { GetUser } from '@/utils/decorators';
 import { ParseObjectIdPipe } from '@/utils/pipes';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { Types } from 'mongoose';
+import { CreateOrderDto } from './dtos';
+import { OrderService } from './order.service';
 
 @Controller('orders')
 export class OrderController {
@@ -21,6 +21,13 @@ export class OrderController {
     @Body() createOrderDto: CreateOrderDto,
   ) {
     const order = await this.orderService.createOrder(user, createOrderDto);
+
+    return { message: 'Order created successfully', order };
+  }
+
+  @Post('/cart')
+  async createOrderFromCart(@GetUser() user: User) {
+    const order = await this.orderService.createOrderFromCart(user);
 
     return { message: 'Order created successfully', order };
   }
