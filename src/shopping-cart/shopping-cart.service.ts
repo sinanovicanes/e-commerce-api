@@ -20,7 +20,7 @@ export class ShoppingCartService {
   private readonly shoppingCartModel: Model<ShoppingCart>;
 
   async findCartByUserId(userId: Types.ObjectId): Promise<ShoppingCart | null> {
-    return this.shoppingCartModel.findById(userId);
+    return this.shoppingCartModel.findOne({ user: userId });
   }
 
   async getCartByUserId(userId: Types.ObjectId): Promise<ShoppingCart> {
