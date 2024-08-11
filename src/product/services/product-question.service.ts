@@ -39,7 +39,9 @@ export class ProductQuestionService {
     return question;
   }
 
-  async getProductQuestions(productId: Types.ObjectId) {
+  async getProductQuestions(
+    productId: Types.ObjectId,
+  ): Promise<ProductQuestion[]> {
     const productQuestions = await this.productQuestionModel
       .find({
         product: productId,
@@ -56,7 +58,7 @@ export class ProductQuestionService {
     user: User,
     productId: Types.ObjectId,
     createProductQuestionDto: CreateProductQuestionDto,
-  ) {
+  ): Promise<ProductQuestion> {
     const productQuestion = new this.productQuestionModel({
       ...createProductQuestionDto,
       product: productId,
@@ -70,17 +72,14 @@ export class ProductQuestionService {
       new ProductQuestionCreateEvent(productQuestion),
     );
 
-    return {
-      message: 'Product question created successfully',
-      productQuestionId: productQuestion._id,
-    };
+    return productQuestion;
   }
 
   async answerQuestion(
     merchant: Merchant,
     questionId: Types.ObjectId,
     answerProductQuestionDto: AnswerProductQuestionDto,
-  ) {
+  ): Promise<ProductQuestion> {
     const { answer } = answerProductQuestionDto;
     const productQuestion = await this.getQuestionById(questionId);
 
@@ -99,12 +98,10 @@ export class ProductQuestionService {
       new ProductQuestionUpdateEvent(productQuestion),
     );
 
-    return {
-      message: 'Product question answered successfully',
-    };
+    return productQuestion;
   }
 
-  async deleteQuestion(questionId: Types.ObjectId) {
+  async deleteQuestion(questionId: Types.ObjectId): Promise<ProductQuestion> {
     const question =
       await this.productQuestionModel.findByIdAndDelete(questionId);
 
@@ -117,9 +114,6 @@ export class ProductQuestionService {
       new ProductQuestionDeleteEvent(question),
     );
 
-    return {
-      message: 'Question deleted successfully',
-      question,
-    };
+    return question;
   }
 }

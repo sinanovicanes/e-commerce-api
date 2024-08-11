@@ -47,7 +47,7 @@ export class UserService {
     return user;
   }
 
-  async createUser(createUserDto: CreateUserDto) {
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
     const { password } = createUserDto;
     const hashedPassword = await this.encryptionService.hash(password);
     const user = new this.userModel({
@@ -64,7 +64,7 @@ export class UserService {
       );
     }
 
-    return { message: 'User created successfully', user };
+    return user;
   }
 
   async getOrCreateUser(createUserDto: CreateUserDto): Promise<User> {
@@ -74,12 +74,15 @@ export class UserService {
       return user;
     }
 
-    const { user: newUser } = await this.createUser(createUserDto);
+    const newUser = await this.createUser(createUserDto);
 
     return newUser;
   }
 
-  async updateUser(target: User | User['_id'], updateUserDto: UpdateUserDto) {
+  async updateUser(
+    target: User | User['_id'],
+    updateUserDto: UpdateUserDto,
+  ): Promise<User> {
     if (Object.keys(updateUserDto).length === 0) {
       throw new HttpException('No data to update', HttpStatus.BAD_REQUEST);
     }
@@ -98,10 +101,13 @@ export class UserService {
       new UserUpdateEvent(user, updateUserDto),
     );
 
-    return { message: 'User updated successfully', user };
+    return user;
   }
 
-  async updateUserPassword(target: User | User['_id'], password: string) {
+  async updateUserPassword(
+    target: User | User['_id'],
+    password: string,
+  ): Promise<User> {
     const hashedPassword = await this.encryptionService.hash(password);
     const id = target instanceof User ? target._id : target;
     const user = await this.userModel.findByIdAndUpdate(
@@ -110,6 +116,6 @@ export class UserService {
       { new: true },
     );
 
-    return { message: 'Password updated successfully', user };
+    return user;
   }
 }

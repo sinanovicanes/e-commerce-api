@@ -71,7 +71,10 @@ export class ProductService {
     return product;
   }
 
-  async createProduct(merchant: Merchant, createProductDto: CreateProductDto) {
+  async createProduct(
+    merchant: Merchant,
+    createProductDto: CreateProductDto,
+  ): Promise<Product> {
     const product = new this.productModel({
       ...createProductDto,
       stock: 0,
@@ -85,16 +88,13 @@ export class ProductService {
       new ProductCreateEvent(product),
     );
 
-    return {
-      message: 'Product created successfully',
-      productId: product._id,
-    };
+    return product;
   }
 
   async updateProduct(
     productId: Types.ObjectId,
     updateProductDto: UpdateProductDto,
-  ) {
+  ): Promise<Product> {
     if (Object.keys(updateProductDto).length === 0) {
       throw new BadRequestException(
         'At least one field must be provided to update',
@@ -112,10 +112,10 @@ export class ProductService {
       new ProductUpdateEvent(product, updateProductDto),
     );
 
-    return { message: 'Product updated successfully', product };
+    return product;
   }
 
-  async deleteProduct(productId: Types.ObjectId) {
+  async deleteProduct(productId: Types.ObjectId): Promise<Product> {
     const product = await this.productModel.findByIdAndDelete(productId);
 
     if (!product) {
@@ -127,7 +127,7 @@ export class ProductService {
       new ProductDeleteEvent(product),
     );
 
-    return { message: 'Product deleted successfully', product };
+    return product;
   }
 
   async getProductPrices(productIds: Types.ObjectId[] | string[]) {

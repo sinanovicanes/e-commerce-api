@@ -1,12 +1,12 @@
 import { User } from '@/user/schemas';
 import { maskField, maskFields } from '@/utils/string';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CreateProductReviewDto } from '../dtos';
-import { ProductReview } from '../schemas';
-import { EventEmitter2 } from '@nestjs/event-emitter';
 import { ProductReviewCreateEvent, ProductReviewDeleteEvent } from '../events';
+import { ProductReview } from '../schemas';
 
 @Injectable()
 export class ProductReviewService {
@@ -53,7 +53,7 @@ export class ProductReviewService {
     user: User,
     productId: Types.ObjectId,
     createProductReviewDto: CreateProductReviewDto,
-  ) {
+  ): Promise<ProductReview> {
     const review = new this.productReviewModel({
       ...createProductReviewDto,
       user: user._id,
@@ -67,13 +67,10 @@ export class ProductReviewService {
       new ProductReviewCreateEvent(review),
     );
 
-    return {
-      message: 'Product review created successfully',
-      review,
-    };
+    return review;
   }
 
-  async deleteReview(reviewId: Types.ObjectId) {
+  async deleteReview(reviewId: Types.ObjectId): Promise<ProductReview> {
     const review = await this.productReviewModel.findByIdAndDelete(reviewId);
 
     if (!review) {
@@ -85,9 +82,6 @@ export class ProductReviewService {
       new ProductReviewDeleteEvent(review),
     );
 
-    return {
-      message: 'Review deleted successfully',
-      review,
-    };
+    return review;
   }
 }

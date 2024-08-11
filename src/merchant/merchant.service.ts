@@ -33,7 +33,10 @@ export class MerchantService {
     return merchant;
   }
 
-  async createMerchant(createMerchantDto: CreateMerchantDto, owner: User) {
+  async createMerchant(
+    createMerchantDto: CreateMerchantDto,
+    owner: User,
+  ): Promise<Merchant> {
     const merchant = new this.merchantModel({
       ...createMerchantDto,
       owner,
@@ -53,22 +56,13 @@ export class MerchantService {
       new MerchantCreateEvent(merchant),
     );
 
-    return {
-      message: 'Merchant created successfully',
-      merchant: {
-        id: merchant._id,
-        name: merchant.name,
-        address: merchant.address,
-        phone: merchant.phone,
-        email: merchant.email,
-      },
-    };
+    return merchant;
   }
 
   async updateMerchant(
     target: Merchant | Merchant['_id'],
     updateMerchantDto: UpdateMerchantDto,
-  ) {
+  ): Promise<Merchant> {
     if (Object.keys(updateMerchantDto).length === 0) {
       throw new BadRequestException('At least one field must be updated');
     }
@@ -88,15 +82,18 @@ export class MerchantService {
     return merchant;
   }
 
-  async getUsersByMerchantId(merchantId: Types.ObjectId) {
+  async getUsersByMerchantId(merchantId: Types.ObjectId): Promise<User[]> {
     const merchant = await this.getMerchantById(merchantId);
 
     await merchant.populate('users', 'username name lastname email avatar');
 
-    return merchant.users;
+    return merchant.users as User[];
   }
 
-  async addUserToMerchant(target: Merchant | Types.ObjectId, user: User) {
+  async addUserToMerchant(
+    target: Merchant | Types.ObjectId,
+    user: User,
+  ): Promise<Merchant> {
     const merchantId = target instanceof Merchant ? target._id : target;
     const merchant = await this.merchantModel.findByIdAndUpdate(
       merchantId,
@@ -106,13 +103,13 @@ export class MerchantService {
       { new: true },
     );
 
-    return { message: 'User added successfully', merchant };
+    return merchant;
   }
 
   async removeUserFromMerchant(
     target: Merchant | Types.ObjectId,
     targetUser: User | Types.ObjectId,
-  ) {
+  ): Promise<Merchant> {
     const merchantId = target instanceof Merchant ? target._id : target;
     const userId = targetUser instanceof User ? targetUser._id : targetUser;
     const merchant = await this.merchantModel.findByIdAndUpdate(
@@ -123,6 +120,6 @@ export class MerchantService {
       { new: true },
     );
 
-    return { message: 'User removed successfully', merchant };
+    return merchant;
   }
 }

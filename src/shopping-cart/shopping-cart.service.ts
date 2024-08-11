@@ -139,7 +139,7 @@ export class ShoppingCartService {
     };
   }
 
-  async deleteCart(userId: Types.ObjectId) {
+  async deleteCart(userId: Types.ObjectId): Promise<ShoppingCart> {
     const cart = await this.shoppingCartModel.findOneAndDelete({
       user: userId,
     });
@@ -150,6 +150,6 @@ export class ShoppingCartService {
 
     this.eventEmitter.emit(CartClearEvent.event, new CartClearEvent(cart));
 
-    return { message: 'Shopping cart cleared', cart };
+    return cart;
   }
 }

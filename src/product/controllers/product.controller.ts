@@ -48,9 +48,11 @@ export class ProductController {
 
   @UseGuards(MerchantAccessGuard, ProductGuard, ProductMerchantAccessGuard)
   @Delete('/:productId')
-  deleteProduct(
+  async deleteProduct(
     @Param('productId', ParseObjectIdPipe) productId: Types.ObjectId,
   ) {
-    return this.productService.deleteProduct(productId);
+    const review = await this.productService.deleteProduct(productId);
+
+    return { message: 'Product deleted successfully', review };
   }
 }

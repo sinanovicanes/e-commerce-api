@@ -26,7 +26,9 @@ export class ShoppingCartController {
 
   @Delete()
   async clearShoppingCart(@GetUser('_id') userId: Types.ObjectId) {
-    return this.shoppingCartService.deleteCart(userId);
+    const cart = await this.shoppingCartService.deleteCart(userId);
+
+    return { message: 'Shopping cart cleared successfully', cart };
   }
 
   @Post()

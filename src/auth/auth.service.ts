@@ -38,14 +38,14 @@ export class AuthService {
   private readonly resetTokenModel: Model<ResetToken>;
 
   async signUp(signUpDto: SignUpDto) {
-    const { message, user } = await this.userService.createUser(signUpDto);
+    const user = await this.userService.createUser(signUpDto);
 
     this.eventEmitter.emit(
       UserRegisterEvent.event,
       new UserRegisterEvent(user),
     );
 
-    return { message };
+    return { message: 'User has been registered' };
   }
 
   async signIn(signInDto: SignInDto) {
