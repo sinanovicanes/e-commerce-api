@@ -21,10 +21,23 @@ export class ProductService {
   @Inject() private readonly eventEmitter: EventEmitter2;
   @InjectModel(Product.name) private readonly productModel: Model<Product>;
 
-  async isProductExists(productId: Types.ObjectId) {
+  async isProductExists(productId: Types.ObjectId | string): Promise<boolean> {
     const product = await this.productModel.exists({ _id: productId });
 
     return !!product;
+  }
+
+  async isProductsExists(
+    productIds: Types.ObjectId[] | string[],
+  ): Promise<boolean> {
+    const products = await this.productModel.countDocuments(
+      {
+        _id: { $in: productIds },
+      },
+      { limit: productIds.length },
+    );
+
+    return products === productIds.length;
   }
 
   async findProductById(productId: Types.ObjectId): Promise<Product | null> {
@@ -115,5 +128,17 @@ export class ProductService {
     );
 
     return { message: 'Product deleted successfully', product };
+  }
+
+  async getProductPrices(productIds: Types.ObjectId[] | string[]) {
+    const products = await this.productModel.find(
+      { _id: { $in: productIds } },
+      { price: 1 },
+    );
+
+    return products.reduce((acc, product) => {
+      acc[product._id as string] = product.price;
+      return acc;
+    }, {});
   }
 }

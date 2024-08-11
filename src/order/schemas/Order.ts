@@ -16,7 +16,11 @@ export class Order extends Document {
   user: User | Types.ObjectId;
 
   @Prop([
-    { product: { type: Types.ObjectId, ref: Product.name }, quantity: Number },
+    {
+      product: { type: Types.ObjectId, ref: Product.name },
+      quantity: { type: Number, required: true },
+      price: { type: Number, required: true },
+    },
   ])
   products: OrderProduct[];
 
