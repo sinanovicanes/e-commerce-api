@@ -24,7 +24,7 @@ export class MerchantAccessGuard implements CanActivate {
   }
 
   private isOwner(merchant: Merchant, userId: Types.ObjectId): boolean {
-    return merchant.ownerId === userId;
+    return merchant.ownerId.toString() === userId.toString();
   }
 
   private isMember(merchant: Merchant, userId: Types.ObjectId): boolean {
@@ -35,8 +35,8 @@ export class MerchantAccessGuard implements CanActivate {
     }
 
     return merchant.users.some((user: User | Types.ObjectId) => {
-      const id = user instanceof User ? user._id : user.toString();
-      return id == userId.toString();
+      const id = user instanceof User ? user._id : user;
+      return id.toString() == userId.toString();
     });
   }
 
