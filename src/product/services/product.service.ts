@@ -136,9 +136,12 @@ export class ProductService {
       { price: 1 },
     );
 
-    return products.reduce((acc, product) => {
-      acc[product._id as string] = product.price;
-      return acc;
-    }, {});
+    return products.reduce(
+      (acc, product) => {
+        acc[product._id as string] = product.price;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
   }
 }
