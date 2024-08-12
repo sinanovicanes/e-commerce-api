@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { CreateOrderDto } from './dtos';
+import { CreateOrderByCartDto, CreateOrderDto } from './dtos';
 import { Order } from './schemas';
 import { PaymentService } from '@/payment/payment.service';
 import { Request } from 'express';
@@ -38,6 +38,22 @@ export class OrderService {
     }
 
     return order;
+  }
+
+  async getOrderHistory(
+    target: User | Types.ObjectId,
+    page: number,
+    limit: number,
+  ): Promise<Order[]> {
+    const userId = target instanceof Types.ObjectId ? target : target._id;
+    const offset = (page - 1) * limit;
+
+    return this.orderModel
+      .find({ user: userId })
+      .select('products status createdAt updatedAt')
+      .skip(offset)
+      .limit(limit)
+      .populate('products.product', 'name price image');
   }
 
   async createOrder(
@@ -88,22 +104,24 @@ export class OrderService {
     return order;
   }
 
-  // async createOrderFromCart(target: User | Types.ObjectId): Promise<Order> {
-  //   const userId =
-  //     target instanceof Types.ObjectId
-  //       ? target
-  //       : (target._id as Types.ObjectId);
+  async createOrderFromCart(
+    req: Request,
+    user: User,
+    createOrderDto: CreateOrderByCartDto,
+  ): Promise<Order> {
+    const cart = await this.shoppingCartService.getCartByUserId(
+      user._id as Types.ObjectId,
+    );
+    const order = await this.createOrder(req, user, {
+      ...createOrderDto,
+      products: cart.products.map((product) => ({
+        product: (product.product as Types.ObjectId).toString(),
+        quantity: product.quantity,
+      })),
+    });
 
-  //   const cart = await this.shoppingCartService.getCartByUserId(userId);
-  //   const order = await this.createOrder(userId, {
-  //     products: cart.products.map((product) => ({
-  //       product: (product.product as Types.ObjectId).toString(),
-  //       quantity: product.quantity,
-  //     })),
-  //   });
+    await cart.deleteOne();
 
-  //   await cart.deleteOne();
-
-  //   return order;
-  // }
+    return order;
+  }
 }
