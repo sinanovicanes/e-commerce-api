@@ -17,6 +17,7 @@ import { ProductModule } from './product/product.module';
 import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 import { UserModule } from './user/user.module';
 import { OrderModule } from './order/order.module';
+import { PaymentModule } from './payment/payment.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { OrderModule } from './order/order.module';
     ShoppingCartModule,
     EmailModule,
     OrderModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [

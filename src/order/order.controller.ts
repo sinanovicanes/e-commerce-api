@@ -1,10 +1,12 @@
 import { User } from '@/user/schemas';
 import { GetUser } from '@/utils/decorators';
 import { ParseObjectIdPipe } from '@/utils/pipes';
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { CreateOrderDto } from './dtos';
 import { OrderService } from './order.service';
+import passport from 'passport';
+import { Request } from 'express';
 
 @Controller('orders')
 export class OrderController {
@@ -17,18 +19,23 @@ export class OrderController {
 
   @Post()
   async createOrder(
+    @Req() req: Request,
     @GetUser() user: User,
     @Body() createOrderDto: CreateOrderDto,
   ) {
-    const order = await this.orderService.createOrder(user, createOrderDto);
+    const order = await this.orderService.createOrder(
+      req,
+      user,
+      createOrderDto,
+    );
 
     return { message: 'Order created successfully', order };
   }
 
-  @Post('/cart')
-  async createOrderFromCart(@GetUser() user: User) {
-    const order = await this.orderService.createOrderFromCart(user);
+  // @Post('/cart')
+  // async createOrderFromCart(@GetUser() user: User) {
+  //   const order = await this.orderService.createOrderFromCart(user);
 
-    return { message: 'Order created successfully', order };
-  }
+  //   return { message: 'Order created successfully', order };
+  // }
 }

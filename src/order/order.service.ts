@@ -12,10 +12,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CreateOrderDto } from './dtos';
 import { Order } from './schemas';
+import { PaymentService } from '@/payment/payment.service';
+import { Request } from 'express';
 
 @Injectable()
 export class OrderService {
   @Inject() private readonly productService: ProductService;
+  @Inject() private readonly paymentService: PaymentService;
   @Inject() private readonly shoppingCartService: ShoppingCartService;
   @InjectModel(Order.name) private readonly orderModel: Model<Order>;
 
@@ -38,10 +41,11 @@ export class OrderService {
   }
 
   async createOrder(
-    target: User | Types.ObjectId,
+    req: Request,
+    user: User,
     createOrderDto: CreateOrderDto,
   ): Promise<Order> {
-    const userId = target instanceof User ? target._id : target;
+    const userId = user._id as Types.ObjectId;
     const productIds = createOrderDto.products.map(
       (product) => product.product,
     );
@@ -70,28 +74,36 @@ export class OrderService {
       };
     });
     const order = new this.orderModel({ products, user: userId });
+    const payment = await this.paymentService.createPayment(
+      req,
+      user,
+      order,
+      createOrderDto,
+    );
 
-    order.save();
+    order.payment = payment._id as Types.ObjectId;
 
-    return order;
-  }
-
-  async createOrderFromCart(target: User | Types.ObjectId): Promise<Order> {
-    const userId =
-      target instanceof Types.ObjectId
-        ? target
-        : (target._id as Types.ObjectId);
-
-    const cart = await this.shoppingCartService.getCartByUserId(userId);
-    const order = await this.createOrder(userId, {
-      products: cart.products.map((product) => ({
-        product: (product.product as Types.ObjectId).toString(),
-        quantity: product.quantity,
-      })),
-    });
-
-    await cart.deleteOne();
+    await order.save();
 
     return order;
   }
+
+  // async createOrderFromCart(target: User | Types.ObjectId): Promise<Order> {
+  //   const userId =
+  //     target instanceof Types.ObjectId
+  //       ? target
+  //       : (target._id as Types.ObjectId);
+
+  //   const cart = await this.shoppingCartService.getCartByUserId(userId);
+  //   const order = await this.createOrder(userId, {
+  //     products: cart.products.map((product) => ({
+  //       product: (product.product as Types.ObjectId).toString(),
+  //       quantity: product.quantity,
+  //     })),
+  //   });
+
+  //   await cart.deleteOne();
+
+  //   return order;
+  // }
 }

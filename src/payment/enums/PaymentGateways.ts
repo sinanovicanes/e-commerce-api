@@ -1,0 +1,7 @@
+export enum PaymentGateways {
+  IYZIPAY = 'IYZIPAY',
+  PAYPAL = 'PAYPAL',
+  STRIPE = 'STRIPE',
+  PAYSTACK = 'PAYSTACK',
+  FLUTTERWAVE = 'FLUTTERWAVE',
+}

@@ -3,6 +3,7 @@ import { User } from '@/user/schemas';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { OrderStatus } from '../enums';
+import { Payment } from '@/payment/schemas';
 
 interface OrderProduct {
   product: Product | Types.ObjectId;
@@ -26,6 +27,9 @@ export class Order extends Document {
 
   @Prop({ enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;
+
+  @Prop({ ref: 'Payment', type: Types.ObjectId })
+  payment?: Payment | Types.ObjectId;
 
   get total(): number {
     return this.products.reduce((acc, curr) => acc + curr.price, 0);
