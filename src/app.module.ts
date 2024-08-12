@@ -18,6 +18,7 @@ import { ShoppingCartModule } from './shopping-cart/shopping-cart.module';
 import { UserModule } from './user/user.module';
 import { OrderModule } from './order/order.module';
 import { PaymentModule } from './payment/payment.module';
+import { seconds } from './utils/date';
 
 @Module({
   imports: [
@@ -30,9 +31,8 @@ import { PaymentModule } from './payment/payment.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        ttl: 15,
-        max: 10,
         store: await redisStore({
+          ttl: seconds(15, true),
           socket: {
             host: configService.get<string>('REDIS_HOST'),
             port: configService.get<number>('REDIS_PORT'),
