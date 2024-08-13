@@ -11,16 +11,16 @@ import {
   validateSync,
 } from 'class-validator';
 
-enum Environment {
-  Development = 'development',
-  Production = 'production',
-  Test = 'test',
-  Provision = 'provision',
+export enum Environment {
+  DEVELOPMENT = 'development',
+  PRODUCTION = 'production',
+  TEST = 'test',
+  PROVISION = 'provision',
 }
 
 class EnvironmentVariables {
   @IsEnum(Environment)
-  NODE_ENV: Environment = Environment.Development;
+  NODE_ENV: Environment = Environment.DEVELOPMENT;
 
   @IsNumber()
   @Min(0)
@@ -30,7 +30,7 @@ class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   REDIS_HOST: string =
-    this.NODE_ENV === Environment.Development ? 'localhost' : undefined;
+    this.NODE_ENV === Environment.DEVELOPMENT ? 'localhost' : undefined;
 
   @IsNumber()
   @IsInt()

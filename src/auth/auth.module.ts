@@ -8,10 +8,15 @@ import { JwtAuthGuard } from './guards';
 import { RefreshTokenDefinition, ResetTokenDefinition } from './schemas';
 import { GoogleStrategy, LocalStrategy } from './strategies';
 import { GoogleAuthController } from './auth-google.controller';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtConfigService } from '@/config/services';
 
 @Global()
 @Module({
   imports: [
+    JwtModule.registerAsync({
+      useClass: JwtConfigService,
+    }),
     MongooseModule.forFeature([
       UserModelDefinition,
       RefreshTokenDefinition,
