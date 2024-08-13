@@ -6,7 +6,7 @@ import { ISendMailOptions, MailerService } from '@nestjs-modules/mailer';
 export class EmailService {
   @Inject() private readonly mailerService: MailerService;
 
-  async sendMail(type: EmailType, options: ISendMailOptions) {
+  sendMail(type: EmailType, options: ISendMailOptions) {
     return this.mailerService.sendMail({
       ...options,
       template: type,

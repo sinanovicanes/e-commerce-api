@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333333;
+        }
+        .product-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #dddddd;
+            padding-bottom: 10px;
+        }
+        .product-item img {
+            max-width: 60px;
+            border-radius: 5px;
+        }
+        .product-item-details {
+            flex-grow: 1;
+            margin-left: 15px;
+        }
+        .product-item-name {
+            font-weight: bold;
+            margin: 0;
+        }
+        .product-item-quantity {
+            color: #777777;
+            margin: 0;
+        }
+        .product-item-price {
+            color: #777777;
+            margin: 0;
+        }
+        .total {
+            text-align: right;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Order Confirmation</h1>
+        <p>Hi <%= locals.name %>,</p>
+        <p>Thank you for your order! Your order ID is <strong>#<%= locals.orderId %></strong>.</p>
+        <ul class="product-list">
+            <% locals.products.forEach(function(product) { %>
+            <li class="product-item">
+                <img src="<%= product.image %>" alt="<%= product.name %>">
+                <div class="product-item-details">
+                    <p class="product-item-name"><%= product.name %></p>
+                    <p class="product-item-quantity">Quantity: <%= product.quantity %></p>
+                    <p class="product-item-price">Price: $<%= product.price %></p>
+                </div>
+            </li>
+            <% }); %>
+        </ul>
+        <p class="total">Total: $<%= locals.total %></p>
+        <p>We hope you enjoy your purchase! If you have any questions, feel free to contact our support team.</p>
+    </div>
+</body>
+</html>

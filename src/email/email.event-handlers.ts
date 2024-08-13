@@ -7,6 +7,9 @@ import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { EmailService } from './email.service';
 import { EmailType } from './enums';
+import { OrderCreatedEvent } from '@/order/events';
+import { User } from '@/user/schemas';
+import { Product } from '@/product/schemas';
 
 @Injectable()
 export class EmailEventHandlers {
@@ -44,6 +47,40 @@ export class EmailEventHandlers {
       subject: 'Password reset successful',
       context: {
         name: event.user.name,
+      },
+    });
+  }
+
+  @OnEvent(OrderCreatedEvent.event, { async: true })
+  async handleOrderCreatedEvent(event: OrderCreatedEvent) {
+    const { order } = event;
+
+    await order.populate([
+      { path: 'user', select: 'name email' },
+      { path: 'products.product', select: 'name price image' },
+    ]);
+
+    const user = order.user as User;
+    const total = order.total;
+    const products = order.products.map((orderProduct) => {
+      const product = orderProduct.product as Product;
+
+      return {
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        quantity: orderProduct.quantity,
+      };
+    });
+
+    await this.emailService.sendMail(EmailType.ORDER_CONFIRMATION, {
+      to: user.email,
+      subject: 'Order confirmation',
+      context: {
+        name: user.name,
+        orderId: event.order._id,
+        total,
+        products,
       },
     });
   }

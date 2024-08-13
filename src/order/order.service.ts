@@ -14,12 +14,15 @@ import { CreateOrderByCartDto, CreateOrderDto } from './dtos';
 import { Order } from './schemas';
 import { PaymentService } from '@/payment/payment.service';
 import { Request } from 'express';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { OrderCreatedEvent } from './events';
 
 @Injectable()
 export class OrderService {
   @Inject() private readonly productService: ProductService;
   @Inject() private readonly paymentService: PaymentService;
   @Inject() private readonly shoppingCartService: ShoppingCartService;
+  @Inject() private readonly eventEmitter: EventEmitter2;
   @InjectModel(Order.name) private readonly orderModel: Model<Order>;
 
   async findOrderById(orderId: string | Types.ObjectId): Promise<Order | null> {
@@ -100,6 +103,11 @@ export class OrderService {
     order.payment = payment._id as Types.ObjectId;
 
     await order.save();
+
+    this.eventEmitter.emit(
+      OrderCreatedEvent.event,
+      new OrderCreatedEvent(order),
+    );
 
     return order;
   }
