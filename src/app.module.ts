@@ -58,7 +58,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
       },
     }),
     MongooseModule.forRoot(process.env.MONGO_URI, {
-      dbName: 'ecommerce',
+      dbName: process.env.NODE_ENV === 'test' ? 'ecommerce-test' : 'ecommerce',
     }),
     UserModule,
     AuthModule,

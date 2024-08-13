@@ -1,6 +1,13 @@
 import { AuthStrategies } from '@/auth/enums';
 import { IsImageUrl, IsValidPassword } from '@/utils/validators';
-import { IsEmail, IsEnum, IsOptional, IsString, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 
 export class CreateUserDto {
   @IsString()

@@ -1,6 +1,14 @@
 import { User } from '@/user/schemas/User';
 import { GetUser } from '@/utils/decorators';
-import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dtos/sign-up.dto';
@@ -20,6 +28,7 @@ export class AuthController {
 
   @Public()
   @UseGuards(LocalAuthGuard)
+  @HttpCode(HttpStatus.OK)
   @Post('sign-in')
   async signIn(@GetUser() user: User, @Res() res: Response) {
     await this.authService.setUserTokensInCookies(user, res);
