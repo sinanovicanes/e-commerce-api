@@ -1,35 +1,13 @@
-import { Module } from '@nestjs/common';
-import { EmailService } from './email.service';
-import { EmailEventHandlers } from './email.event-handlers';
+import { MailerConfigService } from '@/config/services';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { EjsAdapter } from '@nestjs-modules/mailer/dist/adapters/ejs.adapter';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Module } from '@nestjs/common';
+import { EmailEventHandlers } from './email.event-handlers';
+import { EmailService } from './email.service';
 
 @Module({
   imports: [
     MailerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        transport: {
-          host: configService.get('MAILER_HOST'),
-          port: configService.get('MAILER_PORT'),
-          auth: {
-            user: configService.get('MAILER_USER'),
-            pass: configService.get('MAILER_PASS'),
-          },
-        },
-        template: {
-          dir: `${__dirname}/templates`,
-          adapter: new EjsAdapter(),
-          options: {
-            strict: true,
-          },
-        },
-        defaults: {
-          from: '"No Reply" <noreply@example.com>',
-        },
-      }),
+      useClass: MailerConfigService,
     }),
   ],
   controllers: [],
