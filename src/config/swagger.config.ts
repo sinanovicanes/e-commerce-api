@@ -10,6 +10,7 @@ export const SwaggerConfig = new DocumentBuilder()
   .addTag('users', 'Operations related to users')
   .addTag('merchants', 'Operations related to merchants')
   .addTag('products', 'Operations related to products')
+  .addTag('product-questions', 'Operations related to product questions')
   .addTag('cart', 'Operations related to the cart')
   .addTag('orders', 'Operations related to orders')
   .build();

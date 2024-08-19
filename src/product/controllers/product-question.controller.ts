@@ -22,7 +22,22 @@ import {
   ProductMerchantAccessGuard,
   ProductQuestionAccessGuard,
 } from '../guards';
+import {
+  ApiBadRequestResponse,
+  ApiCookieAuth,
+  ApiCreatedResponse,
+  ApiHeader,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { ProductQuestion } from '../schemas';
 
+@ApiTags('product-questions')
+@ApiCookieAuth()
+@ApiNotFoundResponse({ description: 'Product not found' })
+@ApiUnauthorizedResponse({ description: 'Unauthorized' })
 @UseGuards(ProductGuard)
 @Controller('products/:productId/questions')
 export class ProductQuestionController {
@@ -30,6 +45,10 @@ export class ProductQuestionController {
     private readonly productQuestionService: ProductQuestionService,
   ) {}
 
+  @ApiOkResponse({
+    description: 'Get product questions',
+    type: [ProductQuestion],
+  })
   @Public()
   @Get()
   getQuestion(
@@ -38,6 +57,11 @@ export class ProductQuestionController {
     return this.productQuestionService.getProductQuestions(productId);
   }
 
+  @ApiCreatedResponse({
+    description: 'Question created successfully',
+    type: ProductQuestion,
+  })
+  @ApiBadRequestResponse({ description: 'Bad request' })
   @Post()
   createQuestion(
     @GetUser() user: User,
@@ -51,6 +75,12 @@ export class ProductQuestionController {
     );
   }
 
+  @ApiHeader({ name: 'x-merchant-id', description: 'Merchant ID' })
+  @ApiCreatedResponse({
+    description: 'Question answered successfully',
+    type: ProductQuestion,
+  })
+  @ApiBadRequestResponse({ description: 'Bad request' })
   @UseGuards(MerchantAccessGuard, ProductMerchantAccessGuard)
   @Post('/:questionId/answer')
   answerQuestion(
@@ -65,6 +95,10 @@ export class ProductQuestionController {
     );
   }
 
+  @ApiOkResponse({
+    description: 'Question deleted successfully',
+    type: ProductQuestion,
+  })
   @UseGuards(ProductQuestionAccessGuard)
   @Delete('/:questionId')
   deleteQuestion(
