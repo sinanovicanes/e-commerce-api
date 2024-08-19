@@ -2,18 +2,30 @@ import { Product } from '@/product/schemas';
 import { User } from '@/user/schemas';
 import { adjustDate } from '@/utils/date';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { Document, Types } from 'mongoose';
+
+class ShoppingCartProduct {
+  @ApiProperty({ type: () => Product })
+  product: Product | Types.ObjectId;
+
+  @ApiProperty()
+  quantity: number;
+}
 
 @Schema({ timestamps: true })
 export class ShoppingCart extends Document {
+  @ApiProperty({ type: () => User })
   @Prop({ unique: true, required: true, type: Types.ObjectId, ref: 'User' })
   user: User | Types.ObjectId;
 
+  @ApiProperty({ type: () => [ShoppingCartProduct] })
   @Prop([
     { product: { type: Types.ObjectId, ref: 'Product' }, quantity: Number },
   ])
-  products: { product: Product | Types.ObjectId; quantity: number }[];
+  products: ShoppingCartProduct[];
 
+  @ApiProperty()
   @Prop({ default: adjustDate({ weeks: 2 }), expires: 0 })
   expiresAt: Date;
 
