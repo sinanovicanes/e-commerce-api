@@ -2,24 +2,31 @@ import { Merchant } from '@/merchant/schemas';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { ProductStatus } from '../enums';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Schema({ timestamps: true })
 export class Product extends Document {
+  @ApiProperty()
   @Prop({ required: true })
   name: string;
 
+  @ApiProperty()
   @Prop({ required: true })
   description: string;
 
+  @ApiProperty()
   @Prop({ required: true })
   price: number;
 
+  @ApiProperty()
   @Prop({ required: true })
   stock: number;
 
+  @ApiProperty()
   @Prop({ required: true })
   image: string;
 
+  @ApiProperty()
   @Prop({ required: true })
   category: string;
 

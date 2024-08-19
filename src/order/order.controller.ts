@@ -6,11 +6,25 @@ import { Request } from 'express';
 import { Types } from 'mongoose';
 import { CreateOrderByCartDto, CreateOrderDto } from './dtos';
 import { OrderService } from './order.service';
+import {
+  ApiBadRequestResponse,
+  ApiCookieAuth,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { Order } from './schemas';
 
+@ApiTags('orders')
+@ApiCookieAuth()
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
+  @ApiOkResponse({ description: 'List of orders', type: [Order] })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Get('/history')
   async getOrderHistory(
     @GetUser() user: User,
@@ -22,11 +36,17 @@ export class OrderController {
     return history;
   }
 
+  @ApiOkResponse({ description: 'Order details', type: Order })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Order not found' })
   @Get('/:orderId')
   async getOrder(@Param('orderId', ParseObjectIdPipe) orderId: Types.ObjectId) {
     return this.orderService.getOrderById(orderId);
   }
 
+  @ApiCreatedResponse({ description: 'Order created', type: Order })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiBadRequestResponse({ description: 'Bad request' })
   @Post()
   async createOrder(
     @Req() req: Request,
@@ -42,6 +62,8 @@ export class OrderController {
     return { message: 'Order created successfully', order };
   }
 
+  @ApiCreatedResponse({ description: 'Order created', type: Order })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Post('/cart')
   async createOrderFromCart(
     @Req() req: Request,
