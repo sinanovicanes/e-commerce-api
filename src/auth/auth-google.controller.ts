@@ -1,11 +1,13 @@
 import { User } from '@/user/schemas/User';
 import { GetUser } from '@/utils/decorators';
-import { Controller, Get, HttpStatus, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Res, UseGuards } from '@nestjs/common';
+import { ApiExcludeController } from '@nestjs/swagger';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { Public } from './decorators';
 import { GoogleAuthGuard } from './guards';
 
+@ApiExcludeController()
 @Public()
 @UseGuards(GoogleAuthGuard)
 @Controller('auth/google')
